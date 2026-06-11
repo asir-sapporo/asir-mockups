@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メディアスケジュール: サイドバーにプロジェクトをネスト表示（モックアップ）</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; margin: 0; background: #f1f5f9; color: #1e293b; font-size: 14px; line-height: 1.6; }
+  .page { max-width: 1180px; margin: 0 auto; padding: 28px 24px 80px; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  .lead { color: #64748b; font-size: 13px; margin: 0 0 28px; }
+  h2 { font-size: 17px; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .note { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin: 0 0 20px; }
+
+  /* ===== サイドバー再現 ===== */
+  .twocol { display: flex; gap: 28px; flex-wrap: wrap; }
+  .col-label { font-size: 12px; font-weight: 700; color: #94a3b8; letter-spacing: .04em; margin-bottom: 8px; text-transform: uppercase; }
+  .sidebar { width: 240px; flex-shrink: 0; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #f8fafc; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .sb-search { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+  .sb-search input { width: 100%; padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background:#fff; }
+  .sb-list { padding: 8px; }
+  .row { display: flex; align-items: center; width: 100%; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; background: transparent; color: #334155; text-align: left; margin-bottom: 2px; }
+  .row:hover { background: #eef2f7; }
+  .chev { width: 22px; height: 30px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 10px; cursor: pointer; border-radius: 4px; }
+  .chev:hover { background: #e2e8f0; color:#475569; }
+  .chev.placeholder { cursor: default; }
+  .chev.placeholder:hover { background: transparent; }
+  .name { flex: 1; padding: 8px 8px 8px 2px; }
+  .client-row.active .name { color: #1e40af; font-weight: 700; }
+  .client-row.active { background: #dbeafe; }
+  /* プロジェクト行（ネスト） */
+  .prog-row { padding-left: 8px; }
+  .prog-row .name { display: flex; align-items: center; gap: 6px; padding-left: 22px; color:#475569; }
+  .prog-row .dot { width: 7px; height: 7px; border-radius: 2px; background: #a855f7; flex-shrink:0; }
+  .prog-row.active { background: #f3e8ff; }
+  .prog-row.active .name { color: #7c3aed; font-weight: 700; }
+  .badge-cnt { font-size: 10px; color: #94a3b8; background:#fff; border:1px solid #e2e8f0; border-radius: 10px; padding: 0 7px; margin-left: auto; margin-right: 8px; }
+  .badge-cnt.zero { color:#dc2626; border-color:#fecaca; background:#fef2f2; }
+
+  /* ===== 右側スケジュール（簡略再現） ===== */
+  .panel { border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .panel-head { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display:flex; align-items:center; gap:10px; }
+  .panel-title { font-weight: 800; font-size: 15px; }
+  .crumb { color:#94a3b8; font-weight:500; font-size:13px; }
+  .pill { font-size: 11px; background:#f3e8ff; color:#7c3aed; padding: 2px 9px; border-radius: 999px; font-weight:700; }
+  .chips { display:flex; gap:4px; margin-left:auto; }
+  .chip { font-size:11px; padding:2px 9px; border-radius: 4px; background:#e2e8f0; color:#64748b; }
+  .chip.on { background:#7c3aed; color:#fff; font-weight:700; }
+
+  /* グリッド簡略 */
+  table.sched { border-collapse: collapse; width: 100%; font-size: 11px; }
+  table.sched th, table.sched td { border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center; }
+  table.sched thead th { background:#f8fafc; color:#475569; }
+  .subhead th { font-size:10px; font-weight:700; }
+  .c-plan{color:#16a34a;} .c-shoot{color:#dc2626;} .c-s{color:#0284c7;} .c-l{color:#7c3aed;}
+  td.datecell { background:#f8fafc; color:#64748b; font-weight:600; white-space:nowrap; }
+  .gbadge { display:inline-block; padding:1px 6px; border-radius:4px; color:#fff; font-size:10px; }
+
+  /* カレンダー簡略 */
+  .cal { display:grid; grid-template-columns: repeat(7,1fr); gap:1px; background:#e2e8f0; border:1px solid #e2e8f0; }
+  .cal .cell { background:#fff; min-height:58px; padding:4px; font-size:10px; text-align:left; }
+  .cal .dow { background:#f8fafc; text-align:center; font-weight:700; min-height:0; padding:4px; color:#64748b; }
+  .cal .num { color:#94a3b8; }
+  .empty-state { padding: 40px 20px; text-align:center; color:#94a3b8; font-size:13px; }
+
+  .opt-tag { display:inline-block; font-size:11px; font-weight:700; padding:2px 10px; border-radius:999px; margin-bottom:10px; }
+  .opt-a { background:#dbeafe; color:#1d4ed8; }
+  .opt-b { background:#dcfce7; color:#15803d; }
+  .opt-empty { background:#fef3c7; color:#b45309; }
+  .recommend { font-size:12px; color:#16a34a; font-weight:700; }
+
+  /* Q&A・表 */
+  .qa { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding: 4px 18px; }
+  .qa .q { border-bottom: 1px dashed #e2e8f0; padding: 14px 0; }
+  .qa .q:last-child { border-bottom: none; }
+  .qa .q b { color:#1e293b; }
+  .qa .q .opts { color:#475569; font-size:13px; margin-top:4px; }
+  table.scope { border-collapse: collapse; width: 100%; font-size: 13px; background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; }
+  table.scope th, table.scope td { border-bottom: 1px solid #e2e8f0; padding: 9px 12px; text-align: left; vertical-align: top; }
+  table.scope th { background:#f8fafc; font-size:12px; color:#475569; }
+  .legend { font-size:12px; color:#64748b; margin-top:6px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>メディアスケジュール: サイドバーに「プロジェクト」をネスト表示</h1>
+  <p class="lead">クライアント配下にプロジェクト（＝「＋プロジェクトを追加」で作る案件のまとめ単位）を展開し、プロジェクトを選ぶとそのプロジェクトに紐づく契約・制作物・ログだけのスケジュールを出す案です。<br>※これは静的なイメージです。実データではありません。下部の Q&A と表示方式を見て決めてください。</p>
+
+  <!-- ============ 1. サイドバー before / after ============ -->
+  <h2>① サイドバー：今 → 変更後</h2>
+  <div class="twocol">
+    <div>
+      <div class="col-label">今（クライアントのみ）</div>
+      <div class="sidebar">
+        <div class="sb-search"><input placeholder="クライアント名で検索" readonly></div>
+        <div class="sb-list">
+          <div class="row client-row"><span class="chev placeholder"></span><span class="name">あおぞら歯科</span></div>
+          <div class="row client-row active"><span class="chev placeholder"></span><span class="name">さくらクリニック</span></div>
+          <div class="row client-row"><span class="chev placeholder"></span><span class="name">山田工務店</span></div>
+          <div class="row client-row"><span class="chev placeholder"></span><span class="name">ABC商事</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="col-label">変更後（クライアント ▶ プロジェクト）</div>
+      <div class="sidebar">
+        <div class="sb-search"><input placeholder="クライアント・プロジェクト名で検索" readonly></div>
+        <div class="sb-list">
+          <!-- プロジェクトなし → シェブロンなし -->
+          <div class="row client-row"><span class="chev placeholder"></span><span class="name">あおぞら歯科</span></div>
+
+          <!-- プロジェクト2件持ち・展開中 -->
+          <div class="row client-row"><span class="chev">▼</span><span class="name">さくらクリニック</span></div>
+          <div class="row prog-row active"><span class="name"><span class="dot"></span>春のキャンペーン</span><span class="badge-cnt">2契約</span></div>
+          <div class="row prog-row"><span class="name"><span class="dot"></span>採用ブランディング</span><span class="badge-cnt zero">0契約</span></div>
+
+          <!-- プロジェクト1件・折りたたみ -->
+          <div class="row client-row"><span class="chev">▶</span><span class="name">山田工務店</span></div>
+
+          <!-- プロジェクトなし -->
+          <div class="row client-row"><span class="chev placeholder"></span><span class="name">ABC商事</span></div>
+        </div>
+      </div>
+      <div class="legend">▶/▼＝展開トグル（プロジェクトがある時だけ表示）。<b>名前クリック＝そのクライアント/プロジェクトを選択</b>。クライアント選択＝全体、プロジェクト選択＝そのプロジェクトだけ。紫ドット＝プロジェクト行。「0契約」は紐づく契約がまだ無いプロジェクト。</div>
+    </div>
+  </div>
+
+  <!-- ============ 2. 右側の表示候補 ============ -->
+  <h2>② プロジェクトを選んだときの右側（表示方式の候補）</h2>
+  <p class="note">「さくらクリニック ＞ 春のキャンペーン」（契約2件: メイン契約 / 追加契約）を選んだ状態の例。<b>このうちどの方式が良いか</b>を決めてください。両方採用（タブごと）も可。</p>
+
+  <!-- 案A: グリッド絞り込み -->
+  <div style="margin-bottom:24px;">
+    <span class="opt-tag opt-a">案A：グリッドをそのプロジェクトだけに絞る</span> <span class="recommend">（おすすめ・今のグリッドの見た目そのまま）</span>
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">春のキャンペーン</span><span class="crumb">（さくらクリニック）</span>
+        <span class="pill">プロジェクト表示・1案件</span>
+        <span class="chips"><span class="chip on">メイン契約</span><span class="chip">追加契約</span></span>
+      </div>
+      <table class="sched">
+        <thead>
+          <tr><th rowspan="2" style="width:64px;"></th><th colspan="4">春のキャンペーン / メイン契約　¥150,000</th></tr>
+          <tr class="subhead"><th class="c-plan">企画</th><th class="c-shoot">撮影</th><th class="c-s">S</th><th class="c-l">L</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="datecell">6/9(月)</td><td><span class="gbadge" style="background:#16a34a;">企画A</span></td><td></td><td></td><td></td></tr>
+          <tr><td class="datecell">6/12(木)</td><td></td><td><span class="gbadge" style="background:#dc2626;">撮影</span></td><td></td><td></td></tr>
+          <tr><td class="datecell">6/20(金)</td><td></td><td></td><td><span class="gbadge" style="background:#0284c7;">S-1</span></td><td><span class="gbadge" style="background:#7c3aed;">L-1</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend">フィルタバー・列の並べ替え矢印は非表示。上部の契約チップで、そのプロジェクト内の契約を切替（複数契約のとき）。</div>
+  </div>
+
+  <!-- 案B: カレンダー -->
+  <div style="margin-bottom:24px;">
+    <span class="opt-tag opt-b">案B：月間カレンダーでそのプロジェクトだけ表示</span>
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">春のキャンペーン</span><span class="crumb">（さくらクリニック）</span><span class="pill">2026年6月</span></div>
+      <div style="padding:14px;">
+        <div class="cal">
+          <div class="cell dow">日</div><div class="cell dow">月</div><div class="cell dow">火</div><div class="cell dow">水</div><div class="cell dow">木</div><div class="cell dow">金</div><div class="cell dow">土</div>
+          <div class="cell"><div class="num">7</div></div>
+          <div class="cell"><div class="num">8</div></div>
+          <div class="cell"><div class="num">9</div><span class="gbadge" style="background:#16a34a;">企画</span></div>
+          <div class="cell"><div class="num">10</div></div>
+          <div class="cell"><div class="num">11</div></div>
+          <div class="cell"><div class="num">12</div><span class="gbadge" style="background:#dc2626;">撮影</span></div>
+          <div class="cell"><div class="num">13</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">「月間スケジュール」タブと同じカレンダー形式。プロジェクトの予定だけを表示。</div>
+  </div>
+
+  <!-- 空状態 -->
+  <div>
+    <span class="opt-tag opt-empty">0契約プロジェクトを選んだとき</span>
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">採用ブランディング</span><span class="crumb">（さくらクリニック）</span></div>
+      <div class="empty-state">このプロジェクトにはまだ契約が紐づいていません。<br>契約の編集画面でこのプロジェクトを選ぶと、ここにスケジュールが表示されます。</div>
+    </div>
+  </div>
+
+  <!-- ============ 3. Q&A ============ -->
+  <h2>③ 決めてほしいこと（Q&A）</h2>
+  <div class="qa">
+    <div class="q"><b>Q1. 操作の分け方</b>：クライアント名/プロジェクト名のクリック＝選択、▶/▼＝展開、という分け方でOK？
+      <div class="opts">→ おすすめ：分ける（名前で選択・矢印で開閉）。「行のどこを押しても開閉＋選択」が良ければそれも可。</div></div>
+    <div class="q"><b>Q2. 表示方式</b>：上の <b>案A（グリッド絞り込み）</b> / <b>案B（カレンダー）</b> / <b>両方（タブごと）</b> のどれにする？
+      <div class="opts">→ おすすめ：案A。クライアント選択時の見た目と揃う。</div></div>
+    <div class="q"><b>Q3. 複数契約プロジェクトのグリッド</b>：契約は「1列＋上部チップで切替」(おすすめ) か「契約ごとに別の列を並べる」か？
+      <div class="opts">→ おすすめ：1列＋チップ切替（今のクライアント列と同じ挙動）。</div></div>
+    <div class="q"><b>Q4. 見出し表記</b>：「春のキャンペーン（さくらクリニック）」のように <b>プロジェクト名＋クライアント名</b> でOK？</div>
+    <div class="q"><b>Q5. PDF出力</b>：今回はクライアント単位のまま（プロジェクト単位PDFは後回し）でOK？</div>
+    <div class="q"><b>Q6. データの扱い</b>：プロジェクトに紐づかない（program未設定の）契約・ログは、プロジェクト表示には出さず「クライアント全体」表示にだけ出す。これでOK？</div>
+  </div>
+
+  <!-- ============ 4. 移行スコープ ============ -->
+  <h2>④ 作業範囲</h2>
+  <table class="scope">
+    <thead><tr><th style="width:50%;">今回（初回）</th><th>後回し（必要なら別途）</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>・サイドバーのネスト表示（クライアント ▶ プロジェクト）<br>・プロジェクト選択でスケジュールを絞り込み（決定した方式）<br>・0契約プロジェクトの空状態</td>
+        <td>・プロジェクト単位のPDF出力<br>・選択状態のURL保存（ページ再読込で復元）<br>・契約ごとに列を分ける表示</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+</body>
+</html>

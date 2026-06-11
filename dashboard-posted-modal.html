@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本日投稿の動画 — 2日分表示＋投稿済みモーダル モックアップ</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    background: #f1f5f9; color: #1e293b; margin: 0; padding: 32px; font-size: 14px;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .lead { color: #64748b; font-size: 13px; margin: 0 0 24px; line-height: 1.6; }
+  .stage { max-width: 1100px; margin: 0 auto; }
+  .row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 32px; }
+  .col { flex: 1; min-width: 420px; }
+  .col-label { font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: .04em; }
+
+  /* ===== Card / Widget ===== */
+  .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #f1f5f9; }
+  .widget-title { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
+  .badge { background: #dbeafe; color: #2563eb; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; border: 1px solid #bfdbfe; }
+  .count-badge { background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-left: auto; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .post {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px;
+    background: #f8fafc; border: 1px solid #dbeafe;
+  }
+  .post.overdue { background: #fef2f2; border-color: #fecaca; }
+  .post input { width: 18px; height: 18px; accent-color: #22c55e; flex-shrink: 0; }
+  .post .body { flex: 1; min-width: 0; }
+  .post .name { font-size: 13px; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+  .post .sub { font-size: 11px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .post .sub .assignee { color: #94a3b8; }
+  .post .today { color: #2563eb; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+  .post .late { color: #ef4444; font-weight: 700; font-size: 12px; flex-shrink: 0; text-align: right; }
+  .post .late small { font-size: 10px; }
+
+  /* 投稿済みを開くボタン */
+  .open-posted {
+    margin-top: 12px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px; border-radius: 10px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #16a34a;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .open-posted .pill { background: #16a34a; color: #fff; border-radius: 999px; font-size: 11px; padding: 1px 8px; }
+
+  .alldone { padding: 16px; text-align: center; background: #f0fdf4; border: 1px dashed #bbf7d0; border-radius: 8px; color: #16a34a; font-weight: 600; font-size: 13px; }
+
+  /* ===== Modal ===== */
+  .modal-demo { position: relative; background: #475569; border-radius: 12px; padding: 28px; }
+  .overlay-hint { position: absolute; top: 8px; left: 12px; font-size: 11px; color: #cbd5e1; }
+  .modal { background: #fff; border-radius: 14px; width: 560px; max-width: 100%; margin: 0 auto; box-shadow: 0 20px 50px rgba(0,0,0,.3); overflow: hidden; }
+  .modal-head { padding: 18px 20px; border-bottom: 1px solid #eef2f7; display: flex; align-items: flex-start; gap: 12px; }
+  .modal-head h2 { font-size: 16px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px; }
+  .modal-head .sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+  .modal-head .x { margin-left: auto; border: none; background: #f1f5f9; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px; color: #64748b; flex-shrink: 0; }
+  .modal-body { padding: 16px 20px 20px; max-height: 440px; overflow-y: auto; }
+
+  .posted-row {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+    background: #f0fdf4; border: 1px solid #bbf7d0; margin-bottom: 8px;
+  }
+  .posted-row .check { color: #22c55e; font-size: 15px; flex-shrink: 0; }
+  .posted-row .body { flex: 1; min-width: 0; }
+  .posted-row .name { font-size: 13px; font-weight: 600; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .posted-row .sub { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .posted-row .time { font-size: 11px; color: #94a3b8; flex-shrink: 0; text-align: right; }
+  .posted-row .undo { flex-shrink: 0; border: 1px solid #e2e8f0; background: #fff; color: #64748b; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
+  .modal-empty { padding: 32px; text-align: center; color: #94a3b8; font-size: 13px; }
+
+  /* ===== Q&A / spec ===== */
+  .qa { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .qa h3 { margin: 0 0 12px; font-size: 15px; color: #92400e; }
+  .qa ol { margin: 0; padding-left: 20px; }
+  .qa li { margin-bottom: 10px; line-height: 1.6; }
+  .qa b { color: #b45309; }
+  .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .note h3 { margin: 0 0 12px; font-size: 15px; color: #1e40af; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 10px; overflow-x: auto; font-size: 12px; line-height: 1.5; }
+  table.scope { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.scope th, table.scope td { border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left; }
+  table.scope th { background: #f8fafc; }
+  .rule { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 16px 24px; margin-bottom: 24px; font-size: 13px; line-height: 1.7; }
+  .rule b { color: #047857; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1>本日投稿の動画 — 「2日分表示」＋「投稿済みモーダル」</h1>
+  <p class="lead">
+    ・<b>本日投稿リスト</b>: 公開日が <b>今日＋昨日</b> の未投稿を表示（投稿し忘れ防止）。昨日分は「期限切れ」。一昨日以前は外れる。<br>
+    ・<b>チェック＝投稿済み</b>（チーム全員で共有・DB保存）。チェックした動画はリストから消え、<b>投稿済みモーダル</b>へ。<br>
+    ・<b>投稿済みモーダル</b>: <b>今日チェックした分だけ</b>表示。日付が変われば（明日には）モーダルから消える。
+  </p>
+
+  <div class="rule">
+    <b>動きのまとめ:</b> 公開日が来る → 本日投稿リストに出る（今日＋昨日の2日間）→ 投稿したらチェック → モーダルへ移動（今日のうちだけ表示）→ 明日にはモーダルから消える。チェックを外せば本日投稿リストに戻る（公開日が今日／昨日の範囲内なら）。
+  </div>
+
+  <!-- 通常状態 -->
+  <div class="row">
+    <div class="col">
+      <div class="col-label">① 通常（今日2件＋昨日2件の未投稿／投稿済み3件）</div>
+      <div class="card">
+        <div class="widget-title"><span class="badge">TODAY</span> 本日投稿の動画 <span class="count-badge">4</span></div>
+        <div class="grid">
+          <div class="post">
+            <input type="checkbox">
+            <div class="body"><div class="name">ABC整骨院 ショート#12</div><div class="sub">ABC整骨院 <span class="assignee">・ 担当: 田中・佐藤</span></div></div>
+            <span class="today">今日</span>
+          </div>
+          <div class="post">
+            <input type="checkbox">
+            <div class="body"><div class="name">山田クリニック ロング#3</div><div class="sub">山田クリニック <span class="assignee">・ 担当: 鈴木</span></div></div>
+            <span class="today">今日</span>
+          </div>
+          <div class="post overdue">
+            <input type="checkbox">
+            <div class="body"><div class="name">カフェMorning 告知動画</div><div class="sub">Morning <span class="assignee">・ 担当: 田中</span></div></div>
+            <span class="late">06-09 <small>期限切れ</small></span>
+          </div>
+          <div class="post overdue">
+            <input type="checkbox">
+            <div class="body"><div class="name">DEF歯科 ショート#20</div><div class="sub">DEF歯科 <span class="assignee">・ 担当: 佐藤</span></div></div>
+            <span class="late">06-09 <small>期限切れ</small></span>
+          </div>
+        </div>
+        <button class="open-posted">&#10003; 投稿済み <span class="pill">3</span> を見る &rsaquo;</button>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="col-label">② 未投稿0件（今日・昨日とも投稿済み）</div>
+      <div class="card">
+        <div class="widget-title"><span class="badge">TODAY</span> 本日投稿の動画</div>
+        <div class="alldone">&#x1F389; 未投稿はありません</div>
+        <button class="open-posted">&#10003; 投稿済み <span class="pill">7</span> を見る &rsaquo;</button>
+      </div>
+      <div class="col-label" style="margin-top:20px;">③ 投稿済み0件（開くボタンは非表示）</div>
+      <div class="card">
+        <div class="widget-title"><span class="badge">TODAY</span> 本日投稿の動画 <span class="count-badge">2</span></div>
+        <div class="grid">
+          <div class="post">
+            <input type="checkbox">
+            <div class="body"><div class="name">緑山動物病院 ロング#5</div><div class="sub">緑山動物病院 <span class="assignee">・ 担当: 鈴木</span></div></div>
+            <span class="today">今日</span>
+          </div>
+          <div class="post">
+            <input type="checkbox">
+            <div class="body"><div class="name">星空写真館 ショート#2</div><div class="sub">星空写真館 <span class="assignee">・ 担当: 田中</span></div></div>
+            <span class="today">今日</span>
+          </div>
+        </div>
+        <!-- 投稿済み0件のためボタンなし -->
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル -->
+  <div class="row">
+    <div class="col" style="flex: 1 1 100%;">
+      <div class="col-label">④ 「投稿済み」モーダル（今日チェックした分だけ・明日には消える）</div>
+      <div class="modal-demo">
+        <span class="overlay-hint">※背景は暗くなる（オーバーレイ）</span>
+        <div class="modal">
+          <div class="modal-head">
+            <div>
+              <h2>&#10003; 投稿済みの動画 <span style="color:#16a34a;">3</span></h2>
+              <div class="sub">今日 投稿済みにした分（日付が変わると消えます）</div>
+            </div>
+            <button class="x">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="posted-row">
+              <span class="check">&#10003;</span>
+              <div class="body"><div class="name">DEF歯科 ショート#21</div><div class="sub">DEF歯科 ・ 担当: 佐藤</div></div>
+              <span class="time">14:32</span>
+              <button class="undo">未投稿に戻す</button>
+            </div>
+            <div class="posted-row">
+              <span class="check">&#10003;</span>
+              <div class="body"><div class="name">緑山動物病院 ロング#5</div><div class="sub">緑山動物病院 ・ 担当: 鈴木・田中</div></div>
+              <span class="time">13:10</span>
+              <button class="undo">未投稿に戻す</button>
+            </div>
+            <div class="posted-row">
+              <span class="check">&#10003;</span>
+              <div class="body"><div class="name">ABC整骨院 ショート#11</div><div class="sub">ABC整骨院 ・ 担当: 田中</div></div>
+              <span class="time">10:05</span>
+              <button class="undo">未投稿に戻す</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q&A -->
+  <div class="qa">
+    <h3>確認したいポイント（Q&amp;A）</h3>
+    <ol>
+      <li><b>Q1.</b> 昨日公開分の未投稿は <b>「06-09 期限切れ」（赤）</b> 表示でOK？（既存の期限切れ表示を流用）</li>
+      <li><b>Q2.</b> 開くボタンは「未投稿リストの下」でOK？ 投稿済み0件なら非表示（③）。</li>
+      <li><b>Q3.</b> モーダルは <b>新しい順（投稿時刻の降順）の単純リスト</b> でOK？（今日分だけなので日付の区切りは無し）</li>
+      <li><b>Q4.</b> 各行に投稿時刻（14:32）と「未投稿に戻す」ボタンを置く形でOK？</li>
+      <li><b>Q5.</b> チェックは <b>全員共有</b>。＝誰かが投稿済みにしたら全員の画面で投稿済みになる。これでOK？</li>
+      <li><b>Q6.</b> 「誰が投稿済みにしたか」は記録だけ持つ（画面非表示）でOK？ 表示も要るなら出せます。</li>
+    </ol>
+  </div>
+
+  <!-- DBテーブル案 -->
+  <div class="note">
+    <h3>DBテーブル案（新規・本番＆テスト両方に作成）</h3>
+    <p style="margin:0 0 10px; font-size:13px; color:#475569;">投稿済みを全員共有・保存するため、プロジェクト1件＝1行の新テーブルを追加。チェック＝行を追加、戻す＝行を削除。モーダルは <code>posted_at</code> が今日の行だけ表示。未投稿リストは「この行が無い＝未投稿」で判定するため、行は2日程度残し古いものは自動掃除（任意）。</p>
+    <pre>create table public.media_posted_marks (
+  project_id   text primary key,                 -- 投稿済みの動画（1件1行＝全員共有）
+  posted_at    timestamptz not null default now(),  -- 投稿済みにした日時（モーダル表示判定）
+  posted_by    uuid references auth.users(id),      -- 操作者（記録用・Q6）
+  created_at   timestamptz not null default now()
+);
+alter table public.media_posted_marks enable row level security;
+create policy "read"   on public.media_posted_marks for select using (auth.role() = 'authenticated');
+create policy "insert" on public.media_posted_marks for insert with check (auth.role() = 'authenticated');
+create policy "delete" on public.media_posted_marks for delete using (auth.role() = 'authenticated');</pre>
+    <p style="margin:10px 0 0; font-size:12px; color:#94a3b8;">※ FK・NOT NULL・RLS はテーブル作成時に設定（DB初期設定ルール準拠）。本番DBはユーザーが手動でSQL実行。</p>
+  </div>
+
+  <!-- 移行スコープ -->
+  <div class="note" style="background:#fff; border-color:#e2e8f0;">
+    <h3 style="color:#1e293b;">実装スコープ</h3>
+    <table class="scope">
+      <tr><th>対象</th><th>内容</th></tr>
+      <tr><td>DB</td><td>新テーブル <code>media_posted_marks</code>（テスト＆本番にSQL実行）</td></tr>
+      <tr><td>ストア</td><td>投稿済みマークの読み込み／追加／削除（共有）</td></tr>
+      <tr><td>DashboardPage</td><td>未投稿リストを「公開日＝今日＋昨日 かつ 未マーク」に変更。投稿済みインライン表示を廃止し「投稿済みを見る」ボタンに置換</td></tr>
+      <tr><td>新規モーダル</td><td><code>PostedVideosModal</code>（今日マーク分・新しい順・未投稿に戻す）</td></tr>
+      <tr><td>仕様書</td><td><code>DashboardPage.md</code> 更新＋モーダル仕様追記</td></tr>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

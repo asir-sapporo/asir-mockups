@@ -1,0 +1,2767 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>財務管理</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', 'Noto Sans JP', sans-serif; background: white; font-size: 14px; }
+
+    .app { display: flex; min-height: 100vh; }
+
+    /* ── サイドバー ── */
+    .sidebar {
+      width: 200px; background: #fafafa; border-right: 1px solid #e5e5e5;
+      flex-shrink: 0; display: flex; flex-direction: column;
+    }
+    .sb-head {
+      padding: 16px 14px; border-bottom: 1px solid #e5e5e5;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sb-icon {
+      width: 26px; height: 26px; background: #6366f1; border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .sb-title { font-size: 13px; font-weight: 700; color: #111; }
+    .sb-sub { font-size: 10px; color: #9ca3af; }
+    .sb-nav { flex: 1; padding: 8px 6px; }
+    .sb-item {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 10px; color: #6b7280; font-size: 13px; cursor: pointer;
+      border-radius: 5px; margin-bottom: 1px;
+    }
+    .sb-item:hover { background: #f0f0f0; color: #111; }
+    .sb-item.active { background: #ebebeb; color: #111; font-weight: 500; }
+    .sb-badge { margin-left: auto; background: #ef4444; color: white; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 999px; }
+    .sb-section-label { font-size: 10px; font-weight: 700; color: #c4c4c4; text-transform: uppercase; letter-spacing: 0.08em; padding: 12px 10px 4px; }
+    .sb-foot { padding: 10px 6px; border-top: 1px solid #e5e5e5; }
+    .sb-back { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 5px; color: #9ca3af; font-size: 12px; cursor: pointer; background: none; border: none; font-family: inherit; width: 100%; }
+    .sb-back:hover { background: #f0f0f0; color: #6b7280; }
+
+    /* ── スクリーン ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .content { flex: 1; overflow: auto; }
+    .page-area { padding: 24px 32px; max-width: 960px; margin: 0 auto; }
+
+    /* ── ヘッダー ── */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .page-title { font-size: 18px; font-weight: 700; color: #111; }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .month-nav { display: flex; align-items: center; gap: 6px; }
+    .mbtn { width: 26px; height: 26px; border: 1px solid #e5e5e5; background: white; border-radius: 4px; cursor: pointer; font-size: 11px; color: #555; }
+    .mbtn:hover { background: #f5f5f5; }
+    .mlabel { font-size: 14px; font-weight: 600; width: 90px; text-align: center; color: #111; }
+    .btn-save { padding: 7px 18px; background: #111; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
+    .btn-save:hover { background: #333; }
+
+    /* ── セクションタブ ── */
+    .section-tabs {
+      display: flex; border-bottom: 2px solid #f0f0f0; margin-bottom: 0;
+      gap: 0; overflow-x: auto;
+    }
+    .s-tab {
+      padding: 9px 16px; font-size: 13px; font-weight: 500; color: #9ca3af;
+      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+      white-space: nowrap;
+    }
+    .s-tab:hover { color: #374151; }
+    .s-tab.active { color: #111; border-bottom-color: #6366f1; font-weight: 600; }
+
+    /* ── 入力テーブル ── */
+    .tab-content { display: none; padding-top: 16px; }
+    .tab-content.active { display: block; }
+
+    .input-table { width: 100%; border-collapse: collapse; }
+    .input-table thead th {
+      padding: 7px 10px; font-size: 11px; font-weight: 700; color: #9ca3af;
+      border-bottom: 1px solid #f0f0f0; text-align: left; background: white;
+      white-space: nowrap;
+    }
+    .input-table thead th.th-amount { text-align: right; }
+    .input-table thead th.th-del { width: 28px; }
+
+    .input-table tbody tr { border-bottom: 1px solid #f7f7f7; }
+    .input-table tbody tr:hover { background: #fafafa; }
+    .input-table tbody tr:hover .row-del { color: #d1d5db; }
+
+    /* 項目名セル */
+    .td-name { padding: 6px 8px; }
+    .name-wrap { display: flex; align-items: center; gap: 6px; }
+    .name-inp {
+      border: none; background: transparent; font-size: 13px; font-family: inherit;
+      color: #374151; padding: 4px 6px; border-radius: 3px; flex: 1; min-width: 0;
+    }
+    .name-inp:hover { background: #f5f5f5; }
+    .name-inp:focus { background: #fff8eb; outline: 1px solid #fbbf24; }
+    .name-inp::placeholder { color: #d1d5db; }
+    .app-badge {
+      font-size: 10px; padding: 1px 6px; border-radius: 3px;
+      background: #ede9fe; color: #7c3aed; font-weight: 600; white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* 事業部タグセル */
+    .td-dept { padding: 6px 8px; width: 88px; }
+    .dept-tag {
+      display: inline-flex; align-items: center;
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 3px;
+      cursor: pointer; user-select: none; white-space: nowrap;
+      transition: opacity 0.1s;
+    }
+    .dept-tag:hover { opacity: 0.8; }
+    .dept-tag[data-dept="contract"] { background: #ede9fe; color: #7c3aed; }
+    .dept-tag[data-dept="web"]      { background: #dbeafe; color: #1d4ed8; }
+    .dept-tag[data-dept="media"]    { background: #dcfce7; color: #15803d; }
+    .dept-tag[data-dept="none"]     { background: #f3f4f6; color: #9ca3af; }
+
+    /* 金額セル */
+    .td-amount { padding: 6px 8px; width: 160px; }
+    .amount-inp {
+      width: 100%; border: none; background: transparent; font-size: 13px;
+      font-family: inherit; padding: 4px 6px; border-radius: 3px;
+      text-align: right; color: #111;
+    }
+    .amount-inp:hover { background: #f5f5f5; }
+    .amount-inp:focus { background: #fff8eb; outline: 1px solid #fbbf24; }
+    .amount-inp::placeholder { color: #e5e5e5; text-align: right; }
+    .amount-inp.from-app { color: #7c3aed; }
+    .amount-inp.from-app:focus { color: #111; }
+
+    /* 削除ボタン */
+    .td-del { padding: 6px 4px; width: 28px; }
+    .row-del { background: none; border: none; color: transparent; cursor: pointer; font-size: 13px; width: 22px; height: 22px; border-radius: 3px; }
+    .row-del:hover { background: #fee2e2; color: #ef4444 !important; }
+
+    /* 合計行 */
+    .total-row { background: #fafafa !important; border-top: 2px solid #e5e5e5 !important; }
+    .total-row td { padding: 9px 10px; font-size: 13px; font-weight: 700; color: #111; }
+    .total-row .total-amount { text-align: right; }
+
+    /* 追加ボタン */
+    .add-row-btn {
+      display: flex; align-items: center; gap: 5px; margin-top: 8px;
+      padding: 6px 10px; font-size: 12px; color: #9ca3af;
+      cursor: pointer; background: none; border: none; font-family: inherit;
+    }
+    .add-row-btn:hover { color: #6366f1; }
+
+    /* アプリ参考バナー */
+    .app-ref-banner {
+      display: flex; align-items: center; gap: 12px;
+      background: #f5f3ff; border-radius: 6px; padding: 9px 14px; margin-bottom: 14px;
+    }
+    .app-ref-label { font-size: 11px; font-weight: 700; color: #6d28d9; white-space: nowrap; }
+    .app-ref-vals { display: flex; gap: 20px; flex-wrap: wrap; }
+    .app-ref-item { display: flex; flex-direction: column; }
+    .app-ref-key { font-size: 10px; color: #9ca3af; }
+    .app-ref-val { font-size: 13px; font-weight: 600; color: #6d28d9; }
+
+    /* フォームフッター */
+    .form-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+    .btn-outline { padding: 6px 14px; background: white; color: #374151; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
+    .btn-outline:hover { background: #f9f9f9; }
+
+    /* ── 経理サマリー ── */
+    .summary-note { display: flex; align-items: center; gap: 8px; background: #f8fafc; border: 1px solid #e5e5e5; border-radius: 6px; padding: 10px 14px; margin-bottom: 18px; font-size: 12px; color: #6b7280; }
+    .summary-note strong { color: #374151; }
+    .table-pl-wrap { display: flex; gap: 24px; align-items: flex-start; }
+    .table-section { flex: 1; min-width: 0; overflow-x: auto; }
+    .pl-panel { width: 260px; flex-shrink: 0; border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px 16px; background: #fafafa; position: sticky; top: 24px; }
+    .pl-title { font-size: 12px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+    .pl-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #f0f0f0; }
+    .pl-row:last-child { border-bottom: none; }
+    .pl-lbl { font-size: 12px; color: #6b7280; }
+    .pl-lbl.indent { padding-left: 14px; font-size: 11px; color: #9ca3af; }
+    .pl-lbl.bold { font-weight: 700; color: #111; }
+    .pl-val { font-size: 12px; font-weight: 600; color: #111; }
+    .pl-val.sub { font-size: 11px; font-weight: 400; color: #9ca3af; }
+    .pl-val.green { color: #059669; }
+    .pl-val.red { color: #dc2626; }
+    .pl-divider { height: 1px; background: #e5e5e5; margin: 8px 0; }
+    .pl-divider.thick { height: 2px; background: #d1d5db; margin: 10px 0; }
+    .pl-total { background: #f0fdf4; border-radius: 6px; padding: 10px 12px; margin-top: 12px; }
+    .pl-total-lbl { font-size: 11px; color: #6b7280; margin-bottom: 3px; }
+    .pl-total-val { font-size: 20px; font-weight: 800; color: #059669; letter-spacing: -0.02em; }
+    .pl-total-rate { font-size: 11px; color: #059669; margin-top: 2px; }
+    .pl-dept-breakdown { margin-top: 14px; }
+    .pl-dept-title { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .pl-dept-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; }
+    .pl-dept-name { color: #6b7280; }
+    .pl-dept-val { font-weight: 600; color: #059669; }
+
+    .sheet { border-collapse: collapse; font-size: 13px; }
+    .sheet thead th { padding: 7px 10px; font-size: 11px; font-weight: 700; color: #9ca3af; background: white; border-bottom: 1px solid #f0f0f0; text-align: right; white-space: nowrap; }
+    .sheet thead th.col-label { text-align: left; width: 200px; min-width: 200px; position: sticky; left: 0; background: white; }
+    .sheet thead th.col-dept-tag { text-align: center; width: 80px; }
+    .sheet thead th.col-dept { min-width: 130px; }
+    .sheet tbody td { padding: 8px 12px; border-bottom: 1px solid #f7f7f7; font-size: 13px; text-align: right; }
+    .sheet tbody td.col-label { text-align: left; position: sticky; left: 0; background: white; color: #374151; }
+    .sheet tbody tr:hover td { background: #fafafa; }
+    .sheet tbody tr:hover td.col-label { background: #fafafa; }
+    .cell-empty { color: #d1d5db; }
+    .section-row td { background: #fafafa !important; border-top: 8px solid white !important; border-bottom: 1px solid #e5e5e5 !important; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #374151; }
+    .section-row td.col-label { border-left: 3px solid #6366f1 !important; }
+    .rate-g { font-size: 11px; font-weight: 700; color: #059669; background: #ecfdf5; padding: 2px 6px; border-radius: 3px; }
+    .rate-r { font-size: 11px; font-weight: 700; color: #dc2626; background: #fef2f2; padding: 2px 6px; border-radius: 3px; }
+    .total-row-sum td { background: #f0fdf4 !important; border-top: 2px solid #d1fae5 !important; font-weight: 700; color: #059669; }
+
+    /* ── 経理サマリー A案: カード型（入金予定と統一） ── */
+    .summary-section {
+      margin-bottom: 16px;
+      border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden;
+      background: white;
+    }
+    .summary-section-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; background: #fafafa; border-bottom: 1px solid #e5e5e5;
+    }
+    .ss-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .ss-title { font-size: 13px; font-weight: 700; color: #374151; flex: 1; }
+    .ss-count { font-size: 11px; color: #9ca3af; }
+    .ss-total { font-size: 14px; font-weight: 700; color: #111; margin-left: 10px; }
+
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .summary-table thead th {
+      padding: 7px 10px; font-size: 11px; font-weight: 700; color: #9ca3af;
+      background: white; border-bottom: 1px solid #f0f0f0; text-align: right;
+      white-space: nowrap;
+    }
+    .summary-table thead th.th-label { text-align: left; width: 200px; }
+    .summary-table tbody td {
+      padding: 8px 12px; border-bottom: 1px solid #f7f7f7;
+      font-size: 13px; text-align: right; color: #374151;
+    }
+    .summary-table tbody td.td-label { text-align: left; color: #374151; }
+    .summary-table tbody tr:hover td { background: #fafafa; }
+    .summary-table tbody tr:last-child td { border-bottom: none; }
+    .summary-table .subtotal-row td {
+      background: #f8f8f8 !important;
+      font-weight: 700; color: #111; font-size: 12px;
+      border-top: 1px solid #e5e5e5;
+    }
+    .summary-table .empty { color: #d1d5db; }
+
+    /* 総計カード（支出合計 / 純利益） */
+    .summary-total-card {
+      margin-top: 20px;
+      border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden;
+      background: white;
+    }
+    .summary-total-card .stc-head {
+      padding: 10px 16px; background: #f8fafc; border-bottom: 1px solid #e5e5e5;
+      font-size: 12px; font-weight: 700; color: #374151;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .stc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .stc-table thead th {
+      padding: 7px 10px; font-size: 11px; font-weight: 700; color: #9ca3af;
+      background: white; border-bottom: 1px solid #f0f0f0; text-align: right;
+      white-space: nowrap;
+    }
+    .stc-table thead th.th-label { text-align: left; width: 200px; }
+    .stc-table tbody td {
+      padding: 10px 12px; border-bottom: 1px solid #f7f7f7;
+      font-size: 13px; text-align: right; font-weight: 700;
+    }
+    .stc-table tbody td.td-label { text-align: left; font-size: 13px; }
+    .stc-table tbody tr:last-child td { border-bottom: none; }
+    .stc-table tr.stc-profit td { background: #f0fdf4; }
+    .stc-table tr.stc-profit td.td-label { color: #059669; }
+
+    /* ── ダッシュボード ── */
+    .dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+    .kpi-card { border: 1px solid #e5e5e5; border-radius: 8px; padding: 16px 18px; }
+    .kpi-label { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .kpi-val { font-size: 22px; font-weight: 800; color: #111; letter-spacing: -0.02em; }
+    .kpi-val.green { color: #059669; }
+    .kpi-sub { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+    .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .compare-table th { padding: 9px 14px; font-size: 11px; font-weight: 700; color: #6b7280; background: #fafafa; border-bottom: 2px solid #e5e5e5; text-align: right; }
+    .compare-table th:first-child { text-align: left; }
+    .compare-table td { padding: 9px 14px; border-bottom: 1px solid #f5f5f5; text-align: right; }
+    .compare-table td:first-child { text-align: left; color: #374151; }
+    .compare-table tr:hover td { background: #fafafa; }
+    .diff-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; }
+    .diff-ok { background: #ecfdf5; color: #059669; }
+    .diff-warn { background: #fff7ed; color: #ea580c; }
+    .section-header-row td { background: #fafafa !important; font-weight: 700; font-size: 12px; color: #6b7280; border-top: 8px solid white !important; padding: 8px 14px; }
+
+    /* ── 営業入力 ── */
+    .member-tabs {
+      display: flex; align-items: center; gap: 4px;
+      border-bottom: 2px solid #f0f0f0; margin-bottom: 0; padding-bottom: 0;
+    }
+    .m-tab {
+      padding: 9px 16px; font-size: 13px; font-weight: 500; color: #9ca3af;
+      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+      white-space: nowrap;
+    }
+    .m-tab:hover { color: #374151; }
+    .m-tab.active { color: #111; border-bottom-color: #6366f1; font-weight: 600; }
+    .m-tab-add {
+      margin-left: 4px; padding: 5px 12px; font-size: 12px; color: #9ca3af;
+      background: none; border: 1px dashed #d1d5db; border-radius: 5px;
+      cursor: pointer; font-family: inherit;
+    }
+    .m-tab-add:hover { color: #6366f1; border-color: #a5b4fc; }
+
+    .member-content { display: none; }
+    .member-content.active { display: block; }
+
+    .sales-layout { display: flex; gap: 20px; align-items: flex-start; margin-top: 16px; }
+    .sales-tables { flex: 1; min-width: 0; }
+    .sales-right {
+      width: 240px; flex-shrink: 0; border: 1px solid #e5e5e5; border-radius: 8px;
+      padding: 18px 16px; background: #fafafa; position: sticky; top: 24px;
+    }
+    .sr-title { font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+    .sr-kpi { margin-bottom: 14px; }
+    .sr-kpi-label { font-size: 10px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+    .sr-kpi-val { font-size: 18px; font-weight: 800; color: #111; letter-spacing: -0.02em; }
+    .sr-kpi-val.green { color: #059669; }
+    .sr-kpi-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+    .sr-divider { height: 1px; background: #e5e5e5; margin: 12px 0; }
+    .sr-cat-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; }
+    .sr-cat-name { display: flex; align-items: center; gap: 6px; color: #6b7280; }
+    .sr-cat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .sr-cat-val { font-weight: 600; color: #374151; }
+    .sr-cat-comm { font-size: 11px; color: #9ca3af; }
+
+    /* カテゴリセクション（入金予定・経理サマリーと統一・カード型） */
+    .cat-section {
+      margin-bottom: 16px;
+      border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden;
+      background: white;
+    }
+    .cat-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: #fafafa; border-bottom: 1px solid #e5e5e5;
+    }
+    .cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cat-name { font-size: 13px; font-weight: 700; color: #374151; flex: 1; }
+    .cat-badge { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 3px; }
+    .deal-table { width: 100%; border-collapse: collapse; }
+    /* 見込み/確定 列 */
+    .th-conf { width: 50px; text-align: center; }
+    .deal-table tbody tr.row-prospect td { background: #fffbeb; }
+    .deal-table tbody tr.row-prospect:hover td { background: #fef3c7; }
+    .deal-table thead th {
+      padding: 7px 10px; font-size: 11px; font-weight: 700; color: #9ca3af;
+      background: white; border-bottom: 1px solid #f0f0f0; text-align: left;
+    }
+    .deal-table thead th.th-r { text-align: right; }
+    .deal-table thead th.th-c { text-align: center; }
+    .deal-table tbody tr { border-bottom: 1px solid #f7f7f7; }
+    .deal-table tbody tr:hover { background: #fafafa; }
+    .deal-table tbody tr:hover .deal-del { color: #d1d5db; }
+    .deal-td { padding: 4px 8px; }
+    .deal-name {
+      border: none; background: transparent; font-size: 13px; font-family: inherit;
+      color: #374151; padding: 4px 4px; border-radius: 3px; width: 100%;
+    }
+    .deal-name:hover { background: #f5f5f5; }
+    .deal-name:focus { background: #fff8eb; outline: 1px solid #fbbf24; }
+    .deal-name::placeholder { color: #d1d5db; }
+    .deal-amount {
+      border: none; background: transparent; font-size: 13px; font-family: inherit;
+      color: #111; padding: 4px 6px; border-radius: 3px; width: 120px; text-align: right;
+    }
+    .deal-amount:hover { background: #f5f5f5; }
+    .deal-amount:focus { background: #fff8eb; outline: 1px solid #fbbf24; }
+    .deal-amount::placeholder { color: #d1d5db; text-align: right; }
+    .deal-rate-wrap { display: flex; align-items: center; gap: 2px; justify-content: center; }
+    .deal-rate {
+      border: none; background: transparent; font-size: 13px; font-family: inherit;
+      color: #374151; padding: 4px 4px; border-radius: 3px; width: 40px; text-align: right;
+    }
+    .deal-rate:hover { background: #f5f5f5; }
+    .deal-rate:focus { background: #fff8eb; outline: 1px solid #fbbf24; }
+    .deal-rate-pct { font-size: 12px; color: #9ca3af; }
+    .deal-commission { font-size: 12px; color: #9ca3af; padding: 4px 8px; text-align: right; white-space: nowrap; }
+    .deal-del {
+      background: none; border: none; color: transparent; cursor: pointer;
+      font-size: 12px; width: 22px; height: 22px; border-radius: 3px;
+    }
+    .deal-del:hover { background: #fee2e2; color: #ef4444 !important; }
+    .cat-total-row td {
+      padding: 7px 10px; background: #f8f8f8; border-top: 2px solid #f0f0f0;
+      font-size: 12px; font-weight: 600;
+    }
+    .cat-add-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 8px 14px; font-size: 12px; color: #9ca3af;
+      cursor: pointer; background: none; border: none;
+      border-top: 1px solid #f0f0f0;
+      font-family: inherit; width: 100%;
+    }
+    .cat-add-btn:hover { color: #6366f1; background: #f8f7ff; }
+
+    /* 全メンバーサマリー */
+    .all-member-section { margin-top: 32px; padding-top: 24px; border-top: 2px solid #f0f0f0; }
+    .all-member-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 14px; }
+    .member-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .filter-chip {
+      display: flex; align-items: center; gap: 5px; padding: 5px 12px;
+      border: 1.5px solid #e5e5e5; border-radius: 999px; font-size: 12px;
+      font-weight: 500; color: #6b7280; cursor: pointer; user-select: none;
+      background: white;
+    }
+    .filter-chip.on { border-color: #6366f1; color: #4f46e5; background: #f0f0ff; }
+    .filter-chip .chip-check { font-size: 10px; }
+    .member-all-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .member-all-table th {
+      padding: 9px 14px; font-size: 11px; font-weight: 700; color: #6b7280;
+      background: #fafafa; border-bottom: 2px solid #e5e5e5; text-align: right;
+    }
+    .member-all-table th:first-child { text-align: left; }
+    .member-all-table td { padding: 10px 14px; border-bottom: 1px solid #f5f5f5; text-align: right; }
+    .member-all-table td:first-child { text-align: left; font-weight: 500; }
+    .member-all-table tr:hover td { background: #fafafa; }
+    .member-all-table tr.combined-row td {
+      background: #f0f9ff; font-weight: 700; color: #1d4ed8;
+      border-top: 2px solid #bfdbfe;
+    }
+    .member-all-table tr.combined-row td:first-child { color: #1d4ed8; }
+    .inactive-member td { color: #d1d5db !important; }
+
+    /* ── クライアントセレクター ── */
+    .cs-wrap { position: relative; flex: 1; min-width: 0; }
+    .cs-trigger {
+      display: flex; align-items: center; gap: 5px; width: 100%;
+      padding: 4px 8px; border: none; background: transparent;
+      border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 13px;
+      color: #374151; text-align: left;
+    }
+    .cs-trigger:hover { background: #f5f5f5; }
+    .cs-trigger.empty { color: #d1d5db; }
+    .cs-val { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cs-arrow { font-size: 9px; color: #c4c4c4; flex-shrink: 0; }
+    .cs-new-badge {
+      font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 3px;
+      background: #eff6ff; color: #3b82f6; flex-shrink: 0;
+    }
+
+    /* グローバルドロップダウン */
+    .client-dd {
+      position: fixed; z-index: 9999; background: white;
+      border: 1px solid #e5e5e5; border-radius: 8px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.10); width: 280px;
+    }
+    .cdd-search-wrap { padding: 10px 10px 6px; }
+    .cdd-search {
+      width: 100%; border: 1px solid #e5e5e5; border-radius: 5px;
+      padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none;
+    }
+    .cdd-search:focus { border-color: #a5b4fc; }
+    .cdd-list { max-height: 200px; overflow-y: auto; padding: 4px 0; }
+    .cdd-item {
+      padding: 8px 14px; font-size: 13px; color: #374151; cursor: pointer;
+    }
+    .cdd-item:hover { background: #f5f5f5; }
+    .cdd-item.selected { background: #f0f0ff; color: #4f46e5; font-weight: 500; }
+    .cdd-empty { padding: 12px 14px; font-size: 12px; color: #9ca3af; text-align: center; }
+    .cdd-new-section { border-top: 1px solid #f0f0f0; padding: 6px 0 4px; }
+    .cdd-new-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 14px; font-size: 13px; color: #3b82f6; cursor: pointer;
+      font-weight: 500;
+    }
+    .cdd-new-btn:hover { background: #eff6ff; }
+    .cdd-new-input-wrap {
+      padding: 8px 10px 10px; display: flex; gap: 6px; align-items: center;
+    }
+    .cdd-new-text {
+      flex: 1; border: 1px solid #bfdbfe; border-radius: 4px; background: #eff6ff;
+      padding: 6px 8px; font-size: 13px; font-family: inherit; color: #1e40af; outline: none;
+    }
+    .cdd-new-text:focus { border-color: #3b82f6; }
+    .cdd-confirm-btn {
+      padding: 5px 10px; background: #3b82f6; color: white; border: none;
+      border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .cdd-confirm-btn:hover { background: #2563eb; }
+
+    /* ── 入金予定 ── */
+    .income-layout { display: flex; gap: 24px; align-items: flex-start; }
+    .income-sections { flex: 1; min-width: 0; }
+    .income-section { margin-bottom: 16px; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; }
+    .income-section-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; background: #fafafa; border-bottom: 1px solid #e5e5e5;
+    }
+    .income-section-icon { font-size: 14px; }
+    .income-section-title { font-size: 13px; font-weight: 700; color: #374151; flex: 1; }
+    .income-section-count { font-size: 11px; color: #9ca3af; }
+    .income-section-total { font-size: 14px; font-weight: 700; color: #111; }
+    .income-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .income-table thead th {
+      padding: 7px 10px; font-size: 11px; font-weight: 700; color: #9ca3af;
+      background: white; border-bottom: 1px solid #f0f0f0; text-align: left;
+    }
+    .income-table thead th.th-r { text-align: right; width: 120px; white-space: nowrap; }
+    .income-table thead th.th-c { text-align: center; width: 110px; }
+    .income-table thead th.th-check { width: 28px; padding: 7px 6px; }
+    .income-table thead th.th-type { width: 58px; white-space: nowrap; }
+    .income-table thead th.th-note { width: 80px; }
+    .income-table tbody td { padding: 9px 10px; border-bottom: 1px solid #f7f7f7; color: #374151; }
+    .income-table tbody tr:last-child td { border-bottom: none; }
+    .income-table tbody tr:hover td { background: #fafafa; }
+    .td-check { padding: 8px 6px; text-align: center; vertical-align: middle; }
+    .income-table td.td-r { text-align: right; }
+    .income-table td.td-c { text-align: center; }
+    .income-table td.td-amount { text-align: right; font-weight: 600; color: #111; }
+    .income-table td.td-sub { font-size: 12px; color: #9ca3af; }
+    /* 入金チェックボタン */
+    /* 共通チェックボタン（入金予定・営業入力で共用） */
+    .row-chk {
+      width: 15px; height: 15px; border-radius: 50%;
+      border: 1.5px solid #d1d5db; background: white;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: transparent; transition: all 0.15s;
+      padding: 0; line-height: 1; flex-shrink: 0;
+    }
+    .row-chk:hover { border-color: #059669; background: #f0fdf4; }
+    .row-chk.checked { background: #059669; border-color: #059669; color: white; }
+    /* 入金済み行 */
+    .income-row-paid td { background: #dcfce7 !important; }
+    .income-row-paid .td-amount { color: #15803d !important; font-weight: 700 !important; }
+    .income-row-paid td:not(.td-check):not(.td-amount) { color: #6b7280 !important; }
+    .income-row-paid.renewal-row td { background: #dcfce7 !important; }
+    .renewal-badge-ok  { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 3px; background: #dcfce7; color: #15803d; }
+    .renewal-badge-ng  { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 3px; background: #fee2e2; color: #dc2626; }
+    .renewal-badge-tbd { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 3px; background: #fef9c3; color: #a16207; }
+    .renewal-row td { background: #fffbeb !important; }
+    .renewal-row:hover td { background: #fef3c7 !important; }
+    .renewal-row td:first-child { border-left: 3px solid #f59e0b; }
+    .income-panel {
+      width: 260px; flex-shrink: 0; border: 1px solid #e5e5e5; border-radius: 8px;
+      padding: 20px 16px; background: #fafafa; position: sticky; top: 24px;
+    }
+    .income-panel-title { font-size: 12px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+    .income-panel-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #f0f0f0; }
+    .income-panel-row:last-child { border-bottom: none; }
+    .income-panel-lbl { font-size: 12px; color: #6b7280; display: flex; align-items: center; gap: 7px; }
+    .income-panel-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .income-panel-val { font-size: 13px; font-weight: 600; color: #111; }
+    .income-total-box { background: #f0fdf4; border-radius: 6px; padding: 12px; margin-top: 14px; }
+    .income-total-lbl { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
+    .income-total-val { font-size: 22px; font-weight: 800; color: #059669; letter-spacing: -0.02em; }
+    .deal-cat-tag { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+    .cat-new     { background: #eff6ff; color: #3b82f6; }
+    .cat-renewal { background: #f3f4f6; color: #6b7280; }
+    .cat-cross   { background: #f5f3ff; color: #7c3aed; }
+    .cat-ref     { background: #f0fdf4; color: #15803d; }
+    .cat-bonus   { background: #fffbeb; color: #a16207; }
+
+    /* 歩合率 セクション単位 */
+    .cat-rate-wrap { display: flex; align-items: center; gap: 5px; margin-left: auto; margin-right: 10px; }
+    .cat-rate-inp { width: 40px; border: 1px solid #e5e5e5; border-radius: 4px; background: white; font-size: 12px; font-family: inherit; padding: 3px 6px; text-align: right; color: #374151; }
+    .cat-rate-inp:focus { border-color: #a5b4fc; outline: none; }
+    .cat-rate-label { font-size: 11px; color: #9ca3af; }
+
+    /* ── 保守管理一覧（入金予定と同じ左右レイアウト） ── */
+    .profit-filters {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .profit-search {
+      padding: 7px 12px; border: 1px solid #e5e5e5; border-radius: 6px;
+      font-size: 13px; font-family: inherit; outline: none;
+      min-width: 240px;
+    }
+    .profit-search:focus { border-color: #a5b4fc; }
+    .profit-toggle {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #6b7280; cursor: pointer;
+    }
+
+    /* テーブル：summary-table を流用、赤字行ハイライト */
+    /* hover時も色を変えない（特別な背景がある行は他もホバー無し方針） */
+    .summary-table tbody tr.row-loss td,
+    .summary-table tbody tr.row-loss:hover td { background: #fef2f2; }
+
+    /* 保守費インライン編集 */
+    .fee-edit {
+      display: inline-flex; align-items: baseline; gap: 2px; justify-content: flex-end;
+    }
+    .fee-yen { font-size: 12px; color: #9ca3af; }
+    .fee-inp {
+      width: 90px; padding: 4px 6px;
+      border: 1px solid #e5e5e5; border-radius: 5px;
+      font-size: 13px; font-weight: 600; color: #111;
+      text-align: right; font-variant-numeric: tabular-nums;
+      outline: none; font-family: inherit;
+    }
+    .fee-inp:focus { background: #fff8eb; border-color: #fbbf24; }
+
+    /* 数値色 */
+    .num-cost   { color: #7c3aed; font-weight: 600; }
+    .num-profit { color: #059669; font-weight: 700; }
+    .num-loss   { color: #dc2626; font-weight: 700; }
+
+    /* 契約期間・支払条件 セル */
+    .date-range {
+      display: inline-flex; align-items: center; gap: 4px;
+      white-space: nowrap;
+    }
+    .date-inp {
+      border: 1px solid #e5e5e5; border-radius: 5px;
+      padding: 3px 6px; font-size: 12px; font-family: inherit;
+      color: #374151; outline: none; width: 130px;
+    }
+    .date-inp:focus { border-color: #a5b4fc; }
+    .date-sep { color: #d1d5db; font-size: 11px; flex-shrink: 0; }
+    .date-none { color: #d1d5db; font-size: 12px; }
+
+    .freq-wrap { display: inline-flex; align-items: center; gap: 8px; }
+    .yearly-toggle {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; color: #6b7280; cursor: pointer; user-select: none;
+    }
+    .yearly-toggle input[type="checkbox"] { cursor: pointer; margin: 0; }
+    .month-sel {
+      border: 1px solid #e5e5e5; border-radius: 5px;
+      padding: 3px 6px; font-size: 12px; font-family: inherit;
+      color: #374151; background: white; outline: none; cursor: pointer;
+    }
+    .month-sel:focus { border-color: #a5b4fc; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── サイドバー ── -->
+  <div class="sidebar">
+    <div class="sb-head">
+      <div class="sb-icon">財</div>
+      <div>
+        <div class="sb-title">財務管理</div>
+        <div class="sb-sub">管理者専用</div>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-item" onclick="showScreen('dashboard')">📊 ダッシュボード</div>
+      <div class="sb-section-label">経理</div>
+      <div class="sb-item active" id="nav-input" onclick="showScreen('input')">📝 入力</div>
+      <div class="sb-item" id="nav-summary" onclick="showScreen('summary')">📋 経理サマリー</div>
+      <div class="sb-section-label">営業</div>
+      <div class="sb-item" id="nav-sales" onclick="showScreen('sales')">💼 営業入力 <span class="sb-badge">2</span></div>
+      <div class="sb-section-label">収入管理</div>
+      <div class="sb-item" id="nav-income" onclick="showScreen('income')">💰 入金予定</div>
+      <div class="sb-item" id="nav-webProfit" onclick="showScreen('webProfit')">💹 保守管理一覧</div>
+    </div>
+    <div class="sb-foot">
+      <button class="sb-back">← Asir App に戻る</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══════════════════════════════════════
+         入力ページ
+    ══════════════════════════════════════ -->
+    <div class="screen active" id="screen-input">
+    <div class="page-area">
+
+      <div class="page-header">
+        <div class="page-title">経理入力</div>
+        <div class="header-right">
+          <div class="month-nav">
+            <button class="mbtn">◀</button>
+            <div class="mlabel">2026年05月</div>
+            <button class="mbtn">▶</button>
+          </div>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- セクションタブ（スプシの列カテゴリに対応） -->
+      <div class="section-tabs">
+        <div class="s-tab active"  onclick="selectTab(this,'tab-uriage')">売上</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-tsushin')">通信費</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-kokoku')">広告費</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-ryohi')">旅費交通費</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-romu')">労務費</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-fukuri')">福利厚生費</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-gachu')">外注費用</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-shoumou')">消耗品費</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-tesuryo')">手数料</div>
+      </div>
+
+      <!-- ─── 売上タブ ─── -->
+      <div id="tab-uriage" class="tab-content active">
+        <div class="app-ref-banner">
+          <span class="app-ref-label">📊 アプリ自動集計（参考）</span>
+          <div class="app-ref-vals">
+            <div class="app-ref-item"><span class="app-ref-key">受託 売上</span><span class="app-ref-val">¥3,000,000</span></div>
+            <div class="app-ref-item"><span class="app-ref-key">WEB 売上</span><span class="app-ref-val">¥1,200,000</span></div>
+            <div class="app-ref-item"><span class="app-ref-key">メディア 売上</span><span class="app-ref-val">¥1,600,000</span></div>
+          </div>
+        </div>
+        <table class="input-table" id="table-uriage">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="STUDIO"><span class="app-badge">アプリ取得</span></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+              <td class="td-amount"><input class="amount-inp from-app" type="text" value="100,700"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="ロボポップ"><span class="app-badge">アプリ取得</span></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="web" onclick="cycleDept(this)">WEB</span></td>
+              <td class="td-amount"><input class="amount-inp from-app" type="text" value="7,810"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="メディア案件A"><span class="app-badge">アプリ取得</span></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="media" onclick="cycleDept(this)">メディア</span></td>
+              <td class="td-amount"><input class="amount-inp from-app" type="text" value="1,600,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥1,708,510</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-uriage')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- ─── 通信費タブ ─── -->
+      <div id="tab-tsushin" class="tab-content">
+        <div style="display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px solid #e5e5e5; border-radius:6px; padding:9px 14px; margin-bottom:14px; font-size:12px; color:#6b7280;">
+          ℹ️ <span>アプリのサブスク入力画面が完成次第、自動で取得されます。現在は手入力してください。</span>
+        </div>
+        <table class="input-table" id="table-tsushin">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="ムームー"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="13,976"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="クラウドワークス"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="9,712"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="LINE公式"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="media" onclick="cycleDept(this)">メディア</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="22,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="ZOOM"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="2,800"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="GOOGLE ONE"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="100"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥48,588</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-tsushin')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- ─── 広告費タブ ─── -->
+      <div id="tab-kokoku" class="tab-content">
+        <table class="input-table" id="table-kokoku">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="Google 広告"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="web" onclick="cycleDept(this)">WEB</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="443,565"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="メタフラ"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="web" onclick="cycleDept(this)">WEB</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="1,845"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="CANVA"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="media" onclick="cycleDept(this)">メディア</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="3,240"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="iSTOCK"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="media" onclick="cycleDept(this)">メディア</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="11,957"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥460,607</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-kokoku')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- ─── 旅費交通費タブ ─── -->
+      <div id="tab-ryohi" class="tab-content">
+        <div class="app-ref-banner">
+          <span class="app-ref-label">📊 アプリ自動集計（参考）</span>
+          <div class="app-ref-vals">
+            <div class="app-ref-item"><span class="app-ref-key">旅費交通費合計</span><span class="app-ref-val">¥115,737</span></div>
+          </div>
+        </div>
+        <table class="input-table" id="table-ryohi">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="電車・交通費"><span class="app-badge">アプリ取得</span></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+              <td class="td-amount"><input class="amount-inp from-app" type="text" value="11,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="レンタカー"><span class="app-badge">アプリ取得</span></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+              <td class="td-amount"><input class="amount-inp from-app" type="text" value="37,355"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="ガソリン"><span class="app-badge">アプリ取得</span></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+              <td class="td-amount"><input class="amount-inp from-app" type="text" value="13"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥48,368</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-ryohi')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- ─── 労務費タブ ─── -->
+      <div id="tab-romu" class="tab-content">
+        <table class="input-table" id="table-romu">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">名前 / 項目</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="松部（営業）"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="288,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="クリエイターA1"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="media" onclick="cycleDept(this)">メディア</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="2,800,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="Claude AI（AI業務費）"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="18,200"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥3,106,200</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-romu')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> メンバー / 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- ─── 福利厚生費タブ ─── -->
+      <div id="tab-fukuri" class="tab-content">
+        <table class="input-table" id="table-fukuri">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="社保費"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="720,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="住民費"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="5,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥725,000</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-fukuri')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- ─── 外注費用タブ ─── -->
+      <div id="tab-gachu" class="tab-content">
+        <div class="app-ref-banner">
+          <span class="app-ref-label">📊 アプリ自動集計（参考）</span>
+          <div class="app-ref-vals">
+            <div class="app-ref-item"><span class="app-ref-key">外注・原価合計</span><span class="app-ref-val">¥965,244</span></div>
+          </div>
+        </div>
+        <table class="input-table" id="table-gachu">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="フリーランス外注A"><span class="app-badge">アプリ取得</span></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+              <td class="td-amount"><input class="amount-inp from-app" type="text" value="151,092"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="ウェブメーカー"><span class="app-badge">アプリ取得</span></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="web" onclick="cycleDept(this)">WEB</span></td>
+              <td class="td-amount"><input class="amount-inp from-app" type="text" value="74,800"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="アイドマ"><span class="app-badge">アプリ取得</span></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="web" onclick="cycleDept(this)">WEB</span></td>
+              <td class="td-amount"><input class="amount-inp from-app" type="text" value="220,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥445,892</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-gachu')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- ─── 消耗品費タブ ─── -->
+      <div id="tab-shoumou" class="tab-content">
+        <table class="input-table" id="table-shoumou">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" placeholder="項目名を入力..."></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" placeholder="—"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥0</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-shoumou')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- ─── 手数料タブ ─── -->
+      <div id="tab-tesuryo" class="tab-content">
+        <table class="input-table" id="table-tesuryo">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="ジャックス"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="13,100"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="マネーフォワード"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="3,038"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="フォーバル"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="25,080"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥41,218</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-tesuryo')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+    </div><!-- /page-area -->
+    </div><!-- /screen-input -->
+
+
+    <!-- ══════════════════════════════════════
+         経理サマリー（読み取り専用）
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-summary">
+    <div class="page-area" style="max-width:1100px;">
+      <div class="page-header">
+        <div class="page-title">経理サマリー</div>
+        <div class="header-right">
+          <div class="month-nav">
+            <button class="mbtn">◀</button>
+            <div class="mlabel">2026年05月</div>
+            <button class="mbtn">▶</button>
+          </div>
+        </div>
+      </div>
+      <div class="summary-note">
+        📋 <span>各入力ページのデータを事業部別に集計しています。修正は <strong>入力</strong> ページから。</span>
+      </div>
+
+      <div class="table-pl-wrap">
+        <div class="table-section">
+
+          <!-- 売上 -->
+          <div class="summary-section">
+            <div class="summary-section-head">
+              <div class="ss-dot" style="background:#059669;"></div>
+              <div class="ss-title">売上</div>
+              <span class="ss-count">3項目</span>
+              <span class="ss-total" style="color:#059669;">¥1,708,510</span>
+            </div>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th class="th-label">項目</th>
+                  <th>受託</th>
+                  <th>WEB</th>
+                  <th>メディア</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-label">STUDIO</td><td>100,700</td><td class="empty">—</td><td class="empty">—</td></tr>
+                <tr><td class="td-label">メディア案件A</td><td class="empty">—</td><td class="empty">—</td><td>1,600,000</td></tr>
+                <tr><td class="td-label">ロボポップ</td><td class="empty">—</td><td>7,810</td><td class="empty">—</td></tr>
+                <tr class="subtotal-row"><td class="td-label">小計</td><td>100,700</td><td>7,810</td><td>1,600,000</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 通信費 -->
+          <div class="summary-section">
+            <div class="summary-section-head">
+              <div class="ss-dot" style="background:#3b82f6;"></div>
+              <div class="ss-title">通信費</div>
+              <span class="ss-count">3項目</span>
+              <span class="ss-total">¥38,876</span>
+            </div>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th class="th-label">項目</th>
+                  <th>受託</th>
+                  <th>WEB</th>
+                  <th>メディア</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-label">ムームー</td><td>13,976</td><td class="empty">—</td><td class="empty">—</td></tr>
+                <tr><td class="td-label">LINE公式</td><td class="empty">—</td><td class="empty">—</td><td>22,000</td></tr>
+                <tr><td class="td-label">ZOOM / G ONE</td><td>2,900</td><td class="empty">—</td><td class="empty">—</td></tr>
+                <tr class="subtotal-row"><td class="td-label">小計</td><td>16,876</td><td class="empty">—</td><td>22,000</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 広告費 -->
+          <div class="summary-section">
+            <div class="summary-section-head">
+              <div class="ss-dot" style="background:#f59e0b;"></div>
+              <div class="ss-title">広告費</div>
+              <span class="ss-count">2項目</span>
+              <span class="ss-total">¥458,762</span>
+            </div>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th class="th-label">項目</th>
+                  <th>受託</th>
+                  <th>WEB</th>
+                  <th>メディア</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-label">Google 広告</td><td class="empty">—</td><td>443,565</td><td class="empty">—</td></tr>
+                <tr><td class="td-label">CANVA / iSTOCK</td><td class="empty">—</td><td class="empty">—</td><td>15,197</td></tr>
+                <tr class="subtotal-row"><td class="td-label">小計</td><td class="empty">—</td><td>443,565</td><td>15,197</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 旅費交通費 -->
+          <div class="summary-section">
+            <div class="summary-section-head">
+              <div class="ss-dot" style="background:#8b5cf6;"></div>
+              <div class="ss-title">旅費交通費</div>
+              <span class="ss-count">1項目</span>
+              <span class="ss-total">¥48,368</span>
+            </div>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th class="th-label">項目</th>
+                  <th>受託</th>
+                  <th>WEB</th>
+                  <th>メディア</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-label">電車・レンタカー他</td><td>48,368</td><td class="empty">—</td><td class="empty">—</td></tr>
+                <tr class="subtotal-row"><td class="td-label">小計</td><td>48,368</td><td class="empty">—</td><td class="empty">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 労務費 -->
+          <div class="summary-section">
+            <div class="summary-section-head">
+              <div class="ss-dot" style="background:#d97706;"></div>
+              <div class="ss-title">労務費</div>
+              <span class="ss-count">2項目</span>
+              <span class="ss-total">¥3,088,000</span>
+            </div>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th class="th-label">項目</th>
+                  <th>受託</th>
+                  <th>WEB</th>
+                  <th>メディア</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-label">松部(営業)</td><td>288,000</td><td class="empty">—</td><td class="empty">—</td></tr>
+                <tr><td class="td-label">クリエイターA1</td><td class="empty">—</td><td class="empty">—</td><td>2,800,000</td></tr>
+                <tr class="subtotal-row"><td class="td-label">小計</td><td>288,000</td><td class="empty">—</td><td>2,800,000</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 外注費用 -->
+          <div class="summary-section">
+            <div class="summary-section-head">
+              <div class="ss-dot" style="background:#6b7280;"></div>
+              <div class="ss-title">外注費用</div>
+              <span class="ss-count">2項目</span>
+              <span class="ss-total">¥371,092</span>
+            </div>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th class="th-label">項目</th>
+                  <th>受託</th>
+                  <th>WEB</th>
+                  <th>メディア</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-label">フリーランス外注A</td><td>151,092</td><td class="empty">—</td><td class="empty">—</td></tr>
+                <tr><td class="td-label">アイドマ</td><td class="empty">—</td><td>220,000</td><td class="empty">—</td></tr>
+                <tr class="subtotal-row"><td class="td-label">小計</td><td>151,092</td><td>220,000</td><td class="empty">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 総計カード -->
+          <div class="summary-total-card">
+            <div class="stc-head">総計</div>
+            <table class="stc-table">
+              <thead>
+                <tr>
+                  <th class="th-label">項目</th>
+                  <th>受託</th>
+                  <th>WEB</th>
+                  <th>メディア</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="td-label">支出合計</td><td>504,336</td><td>663,565</td><td>2,837,197</td></tr>
+                <tr class="stc-profit"><td class="td-label">純利益</td><td style="color:#dc2626;">△403,636</td><td style="color:#dc2626;">△655,755</td><td style="color:#dc2626;">△1,237,197</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <div class="pl-panel">
+          <div class="pl-title">損益サマリー</div>
+          <div class="pl-row"><span class="pl-lbl bold">売上合計</span><span class="pl-val">¥1,708,510</span></div>
+          <div class="pl-row"><span class="pl-lbl indent">受託</span><span class="pl-val sub">¥100,700</span></div>
+          <div class="pl-row"><span class="pl-lbl indent">WEB</span><span class="pl-val sub">¥7,810</span></div>
+          <div class="pl-row"><span class="pl-lbl indent">メディア</span><span class="pl-val sub">¥1,600,000</span></div>
+          <div class="pl-divider"></div>
+          <div class="pl-row"><span class="pl-lbl bold">支出合計</span><span class="pl-val red">△ ¥4,005,098</span></div>
+          <div class="pl-row"><span class="pl-lbl indent">通信費</span><span class="pl-val sub">¥38,876</span></div>
+          <div class="pl-row"><span class="pl-lbl indent">広告費</span><span class="pl-val sub">¥458,762</span></div>
+          <div class="pl-row"><span class="pl-lbl indent">旅費交通費</span><span class="pl-val sub">¥48,368</span></div>
+          <div class="pl-row"><span class="pl-lbl indent">労務費</span><span class="pl-val sub">¥3,088,000</span></div>
+          <div class="pl-row"><span class="pl-lbl indent">外注費用</span><span class="pl-val sub">¥371,092</span></div>
+          <div class="pl-divider thick"></div>
+          <div class="pl-total">
+            <div class="pl-total-lbl">純利益（全社）</div>
+            <div class="pl-total-val" style="color:#dc2626;">△¥2,296,588</div>
+            <div class="pl-total-rate" style="color:#dc2626;">純利率 —134.4%</div>
+          </div>
+          <div class="pl-dept-breakdown">
+            <div class="pl-dept-title">事業部別 純利益</div>
+            <div class="pl-dept-row"><span class="pl-dept-name">受託</span><span class="pl-dept-val" style="color:#dc2626;">△¥403,636</span></div>
+            <div class="pl-dept-row"><span class="pl-dept-name">WEB</span><span class="pl-dept-val" style="color:#dc2626;">△¥655,755</span></div>
+            <div class="pl-dept-row"><span class="pl-dept-name">メディア</span><span class="pl-dept-val" style="color:#dc2626;">△¥1,237,197</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </div><!-- /screen-summary -->
+
+
+    <!-- ══════════════════════════════════════
+         ダッシュボード
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-dashboard">
+    <div class="page-area">
+      <div class="page-header">
+        <div class="page-title">ダッシュボード</div>
+        <div class="header-right">
+          <div class="month-nav">
+            <button class="mbtn">◀</button>
+            <div class="mlabel">2026年05月</div>
+            <button class="mbtn">▶</button>
+          </div>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">売上合計（入力値）</div>
+          <div class="kpi-val">¥1,708,510</div>
+          <div class="kpi-sub">アプリ計算: ¥5,800,000</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">支出合計</div>
+          <div class="kpi-val" style="color:#dc2626;">¥4,005,098</div>
+          <div class="kpi-sub">前月比 —</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">純利益（全社）</div>
+          <div class="kpi-val" style="color:#dc2626;">△¥2,296,588</div>
+          <div class="kpi-sub">※ サンプルデータ</div>
+        </div>
+      </div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width:180px;">カテゴリ</th>
+            <th>経理入力値</th>
+            <th>アプリ自動</th>
+            <th>差異</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="section-header-row"><td colspan="4">売上</td></tr>
+          <tr><td>売上合計</td><td>¥1,708,510</td><td>¥5,800,000</td><td><span class="diff-tag diff-warn">△¥4,091,490</span></td></tr>
+          <tr class="section-header-row"><td colspan="4">コスト（アプリ集計あり）</td></tr>
+          <tr><td>旅費交通費</td><td>¥48,368</td><td>¥115,737</td><td><span class="diff-tag diff-warn">△¥67,369</span></td></tr>
+          <tr><td>外注費用</td><td>¥371,092</td><td>¥965,244</td><td><span class="diff-tag diff-warn">△¥594,152</span></td></tr>
+          <tr class="section-header-row"><td colspan="4">コスト（手入力のみ）</td></tr>
+          <tr><td>通信費</td><td>¥38,876</td><td style="color:#9ca3af;">—</td><td style="color:#9ca3af; font-size:12px;">アプリ未集計</td></tr>
+          <tr><td>広告費</td><td>¥458,762</td><td style="color:#9ca3af;">—</td><td style="color:#9ca3af; font-size:12px;">アプリ未集計</td></tr>
+          <tr><td>労務費</td><td>¥3,088,000</td><td style="color:#9ca3af;">—</td><td style="color:#9ca3af; font-size:12px;">アプリ未集計</td></tr>
+        </tbody>
+      </table>
+    </div>
+    </div><!-- /screen-dashboard -->
+
+    <!-- ══════════════════════════════════════
+         営業入力
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-sales">
+    <div class="page-area" style="max-width:1060px;">
+
+      <div class="page-header">
+        <div class="page-title">営業入力</div>
+        <div class="header-right">
+          <div class="month-nav">
+            <button class="mbtn">◀</button>
+            <div class="mlabel">2026年05月</div>
+            <button class="mbtn">▶</button>
+          </div>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- メンバータブ -->
+      <div class="member-tabs">
+        <div class="m-tab active" onclick="selectMember(this,'member-yamada')">山田太郎</div>
+        <div class="m-tab" onclick="selectMember(this,'member-tanaka')">田中花子</div>
+        <div class="m-tab" onclick="selectMember(this,'member-suzuki')">鈴木一郎</div>
+        <button class="m-tab-add">＋ メンバー追加</button>
+      </div>
+
+      <!-- ── 山田太郎 ── -->
+      <div id="member-yamada" class="member-content active">
+        <div class="sales-layout">
+          <div class="sales-tables">
+
+            <!-- 新規案件 -->
+            <div class="cat-section" id="cats-yamada-new">
+              <div class="cat-header">
+                <div class="cat-dot" style="background:#3b82f6;"></div>
+                <div class="cat-name">新規案件</div>
+                <div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="10" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div>
+                <span class="cat-badge" style="background:#eff6ff; color:#3b82f6;" id="badge-yamada-new">2件 ¥800,000</span>
+              </div>
+              <table class="deal-table" id="dt-yamada-new" data-new="1">
+                <thead><tr>
+                  <th class="th-conf">確定</th>
+                  <th>案件名</th>
+                  <th class="th-r" style="width:130px;">金額</th>
+                  <th class="th-r" style="width:110px;">歩合額</th>
+                  <th style="width:28px;"></th>
+                </tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="td-check"><button class="row-chk checked" onclick="toggleConfirm(this)">✓</button></td>
+                    <td class="deal-td"><input class="deal-name" type="text" value="クライアントA"></td>
+                    <td class="deal-td"><input class="deal-amount" type="text" value="500,000" oninput="calcRow(this)"></td>
+                    <td class="deal-commission">¥50,000</td>
+                    <td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td>
+                  </tr>
+                  <tr>
+                    <td class="td-check"><button class="row-chk" onclick="toggleConfirm(this)">✓</button></td>
+                    <td class="deal-td"><input class="deal-name" type="text" value="クライアントB"></td>
+                    <td class="deal-td"><input class="deal-amount" type="text" value="300,000" oninput="calcRow(this)"></td>
+                    <td class="deal-commission">¥45,000</td>
+                    <td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td>
+                  </tr>
+                </tbody>
+                <tfoot><tr class="cat-total-row">
+                  <td></td>
+                  <td>小計</td>
+                  <td style="text-align:right; font-weight:700;" class="ct-amount">¥800,000</td>
+                  <td style="text-align:right; color:#059669;" class="ct-comm">¥95,000</td>
+                  <td></td>
+                </tr></tfoot>
+              </table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-yamada-new')">＋ 案件を追加</button>
+            </div>
+
+            <!-- 更新案件 -->
+            <div class="cat-section" id="cats-yamada-renewal">
+              <div class="cat-header">
+                <div class="cat-dot" style="background:#9ca3af;"></div>
+                <div class="cat-name">更新案件</div>
+                <div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="5" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div>
+                <span class="cat-badge" style="background:#f9fafb; color:#6b7280;" id="badge-yamada-renewal">1件 ¥400,000</span>
+              </div>
+              <table class="deal-table" id="dt-yamada-renewal">
+                <thead><tr>
+                  <th>案件名</th>
+                  <th class="th-r" style="width:130px;">金額</th>
+                  <th class="th-r" style="width:110px;">歩合額</th>
+                  <th style="width:28px;"></th>
+                </tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="deal-td"><input class="deal-name" type="text" value="クライアントC（継続）"></td>
+                    <td class="deal-td"><input class="deal-amount" type="text" value="400,000" oninput="calcRow(this)"></td>
+                    <td class="deal-commission">¥20,000</td>
+                    <td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td>
+                  </tr>
+                </tbody>
+                <tfoot><tr class="cat-total-row">
+                  <td>小計</td>
+                  <td style="text-align:right; font-weight:700;" class="ct-amount">¥400,000</td>
+                  <td style="text-align:right; color:#059669;" class="ct-comm">¥20,000</td>
+                  <td></td>
+                </tr></tfoot>
+              </table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-yamada-renewal')">＋ 案件を追加</button>
+            </div>
+
+            <!-- クロスセル案件 -->
+            <div class="cat-section" id="cats-yamada-cross">
+              <div class="cat-header">
+                <div class="cat-dot" style="background:#8b5cf6;"></div>
+                <div class="cat-name">クロスセル案件</div>
+                <div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="10" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div>
+                <span class="cat-badge" style="background:#f5f3ff; color:#7c3aed;" id="badge-yamada-cross">1件 ¥150,000</span>
+              </div>
+              <table class="deal-table" id="dt-yamada-cross">
+                <thead><tr>
+                  <th>案件名</th>
+                  <th class="th-r" style="width:130px;">金額</th>
+                  <th class="th-r" style="width:110px;">歩合額</th>
+                  <th style="width:28px;"></th>
+                </tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="deal-td"><input class="deal-name" type="text" value="クライアントD 追加サービス"></td>
+                    <td class="deal-td"><input class="deal-amount" type="text" value="150,000" oninput="calcRow(this)"></td>
+                    <td class="deal-commission">¥18,000</td>
+                    <td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td>
+                  </tr>
+                </tbody>
+                <tfoot><tr class="cat-total-row">
+                  <td>小計</td>
+                  <td style="text-align:right; font-weight:700;" class="ct-amount">¥150,000</td>
+                  <td style="text-align:right; color:#059669;" class="ct-comm">¥18,000</td>
+                  <td></td>
+                </tr></tfoot>
+              </table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-yamada-cross')">＋ 案件を追加</button>
+            </div>
+
+            <!-- 紹介案件 -->
+            <div class="cat-section" id="cats-yamada-ref">
+              <div class="cat-header">
+                <div class="cat-dot" style="background:#10b981;"></div>
+                <div class="cat-name">紹介案件</div>
+                <div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="8" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div>
+                <span class="cat-badge" style="background:#f0fdf4; color:#059669;" id="badge-yamada-ref">0件</span>
+              </div>
+              <table class="deal-table" id="dt-yamada-ref">
+                <thead><tr>
+                  <th>案件名</th>
+                  <th class="th-r" style="width:130px;">金額</th>
+                  <th class="th-r" style="width:110px;">歩合額</th>
+                  <th style="width:28px;"></th>
+                </tr></thead>
+                <tbody>
+                  <tr><td colspan="4" style="padding:14px; text-align:center; color:#d1d5db; font-size:12px;">案件なし</td></tr>
+                </tbody>
+                <tfoot><tr class="cat-total-row">
+                  <td>小計</td>
+                  <td style="text-align:right; font-weight:700;" class="ct-amount">¥0</td>
+                  <td style="text-align:right; color:#9ca3af;" class="ct-comm">¥0</td>
+                  <td></td>
+                </tr></tfoot>
+              </table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-yamada-ref')">＋ 案件を追加</button>
+            </div>
+
+            <!-- ボーナス系 -->
+            <div class="cat-section" id="cats-yamada-bonus">
+              <div class="cat-header">
+                <div class="cat-dot" style="background:#f59e0b;"></div>
+                <div class="cat-name">ボーナス系</div>
+                <div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="15" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div>
+                <span class="cat-badge" style="background:#fffbeb; color:#d97706;" id="badge-yamada-bonus">0件</span>
+              </div>
+              <table class="deal-table" id="dt-yamada-bonus">
+                <thead><tr>
+                  <th>案件名</th>
+                  <th class="th-r" style="width:130px;">金額</th>
+                  <th class="th-r" style="width:110px;">歩合額</th>
+                  <th style="width:28px;"></th>
+                </tr></thead>
+                <tbody>
+                  <tr><td colspan="4" style="padding:14px; text-align:center; color:#d1d5db; font-size:12px;">案件なし</td></tr>
+                </tbody>
+                <tfoot><tr class="cat-total-row">
+                  <td>小計</td>
+                  <td style="text-align:right; font-weight:700;" class="ct-amount">¥0</td>
+                  <td style="text-align:right; color:#9ca3af;" class="ct-comm">¥0</td>
+                  <td></td>
+                </tr></tfoot>
+              </table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-yamada-bonus')">＋ 案件を追加</button>
+            </div>
+
+          </div><!-- /sales-tables -->
+
+          <!-- 右パネル: メンバーサマリー -->
+          <div class="sales-right" id="sr-yamada">
+            <div class="sr-title">山田太郎 サマリー</div>
+            <div class="sr-kpi">
+              <div class="sr-kpi-label">売上合計</div>
+              <div class="sr-kpi-val">¥1,350,000</div>
+            </div>
+            <div class="sr-kpi">
+              <div class="sr-kpi-label">既存抜き売上</div>
+              <div class="sr-kpi-val green">¥950,000</div>
+              <div class="sr-kpi-sub">更新案件（¥400,000）を除く</div>
+            </div>
+            <div class="sr-kpi">
+              <div class="sr-kpi-label">歩合合計</div>
+              <div class="sr-kpi-val" style="color:#6366f1;">¥133,000</div>
+              <div class="sr-kpi-sub">平均歩合率 9.9%</div>
+            </div>
+            <div class="sr-divider"></div>
+            <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">カテゴリ別</div>
+            <div class="sr-cat-row">
+              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#3b82f6;"></span>新規</span>
+              <span><span class="sr-cat-val">¥800,000</span> <span class="sr-cat-comm">歩 ¥95,000</span></span>
+            </div>
+            <div class="sr-cat-row">
+              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#9ca3af;"></span>更新</span>
+              <span><span class="sr-cat-val">¥400,000</span> <span class="sr-cat-comm">歩 ¥20,000</span></span>
+            </div>
+            <div class="sr-cat-row">
+              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#8b5cf6;"></span>クロスセル</span>
+              <span><span class="sr-cat-val">¥150,000</span> <span class="sr-cat-comm">歩 ¥18,000</span></span>
+            </div>
+            <div class="sr-cat-row">
+              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#10b981;"></span>紹介</span>
+              <span><span class="sr-cat-val" style="color:#d1d5db;">—</span></span>
+            </div>
+            <div class="sr-cat-row">
+              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#f59e0b;"></span>ボーナス</span>
+              <span><span class="sr-cat-val" style="color:#d1d5db;">—</span></span>
+            </div>
+          </div>
+
+        </div><!-- /sales-layout -->
+      </div><!-- /member-yamada -->
+
+      <!-- ── 田中花子 ── -->
+      <div id="member-tanaka" class="member-content">
+        <div class="sales-layout">
+          <div class="sales-tables">
+            <div class="cat-section">
+              <div class="cat-header"><div class="cat-dot" style="background:#3b82f6;"></div><div class="cat-name">新規案件</div><div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="10" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div><span class="cat-badge" style="background:#eff6ff; color:#3b82f6;">1件 ¥800,000</span></div>
+              <table class="deal-table" id="dt-tanaka-new" data-new="1"><thead><tr><th class="th-conf">確定</th><th>案件名</th><th class="th-r" style="width:130px;">金額</th><th class="th-r" style="width:110px;">歩合額</th><th style="width:28px;"></th></tr></thead>
+              <tbody><tr><td class="td-check"><button class="row-chk" onclick="toggleConfirm(this)">✓</button></td><td class="deal-td"><input class="deal-name" type="text" value="クライアントE"></td><td class="deal-td"><input class="deal-amount" type="text" value="800,000" oninput="calcRow(this)"></td><td class="deal-commission">¥80,000</td><td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td></tr></tbody>
+              <tfoot><tr class="cat-total-row"><td></td><td>小計</td><td style="text-align:right;font-weight:700;" class="ct-amount">¥800,000</td><td style="text-align:right;color:#059669;" class="ct-comm">¥80,000</td><td></td></tr></tfoot></table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-tanaka-new')">＋ 案件を追加</button>
+            </div>
+            <div class="cat-section">
+              <div class="cat-header"><div class="cat-dot" style="background:#9ca3af;"></div><div class="cat-name">更新案件</div><div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="5" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div><span class="cat-badge" style="background:#f9fafb; color:#6b7280;">1件 ¥600,000</span></div>
+              <table class="deal-table" id="dt-tanaka-renewal"><thead><tr><th>案件名</th><th class="th-r" style="width:130px;">金額</th><th class="th-r" style="width:110px;">歩合額</th><th style="width:28px;"></th></tr></thead>
+              <tbody><tr><td class="deal-td"><input class="deal-name" type="text" value="クライアントF（継続）"></td><td class="deal-td"><input class="deal-amount" type="text" value="600,000" oninput="calcRow(this)"></td><td class="deal-commission">¥30,000</td><td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td></tr></tbody>
+              <tfoot><tr class="cat-total-row"><td>小計</td><td style="text-align:right;font-weight:700;" class="ct-amount">¥600,000</td><td style="text-align:right;color:#059669;" class="ct-comm">¥30,000</td><td></td></tr></tfoot></table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-tanaka-renewal')">＋ 案件を追加</button>
+            </div>
+            <div class="cat-section">
+              <div class="cat-header"><div class="cat-dot" style="background:#8b5cf6;"></div><div class="cat-name">クロスセル案件</div><div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="10" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div><span class="cat-badge" style="background:#f5f3ff; color:#7c3aed;">0件</span></div>
+              <table class="deal-table" id="dt-tanaka-cross"><thead><tr><th>案件名</th><th class="th-r" style="width:130px;">金額</th><th class="th-r" style="width:110px;">歩合額</th><th style="width:28px;"></th></tr></thead>
+              <tbody><tr><td colspan="4" style="padding:14px;text-align:center;color:#d1d5db;font-size:12px;">案件なし</td></tr></tbody>
+              <tfoot><tr class="cat-total-row"><td>小計</td><td style="text-align:right;font-weight:700;" class="ct-amount">¥0</td><td style="text-align:right;color:#9ca3af;" class="ct-comm">¥0</td><td></td></tr></tfoot></table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-tanaka-cross')">＋ 案件を追加</button>
+            </div>
+            <div class="cat-section">
+              <div class="cat-header"><div class="cat-dot" style="background:#10b981;"></div><div class="cat-name">紹介案件</div><div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="8" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div><span class="cat-badge" style="background:#f0fdf4; color:#059669;">1件 ¥200,000</span></div>
+              <table class="deal-table" id="dt-tanaka-ref"><thead><tr><th>案件名</th><th class="th-r" style="width:130px;">金額</th><th class="th-r" style="width:110px;">歩合額</th><th style="width:28px;"></th></tr></thead>
+              <tbody><tr><td class="deal-td"><input class="deal-name" type="text" value="クライアントG（紹介）"></td><td class="deal-td"><input class="deal-amount" type="text" value="200,000" oninput="calcRow(this)"></td><td class="deal-commission">¥16,000</td><td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td></tr></tbody>
+              <tfoot><tr class="cat-total-row"><td>小計</td><td style="text-align:right;font-weight:700;" class="ct-amount">¥200,000</td><td style="text-align:right;color:#059669;" class="ct-comm">¥16,000</td><td></td></tr></tfoot></table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-tanaka-ref')">＋ 案件を追加</button>
+            </div>
+            <div class="cat-section">
+              <div class="cat-header"><div class="cat-dot" style="background:#f59e0b;"></div><div class="cat-name">ボーナス系</div><div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="15" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div><span class="cat-badge" style="background:#fffbeb; color:#d97706;">0件</span></div>
+              <table class="deal-table" id="dt-tanaka-bonus"><thead><tr><th>案件名</th><th class="th-r" style="width:130px;">金額</th><th class="th-r" style="width:110px;">歩合額</th><th style="width:28px;"></th></tr></thead>
+              <tbody><tr><td colspan="4" style="padding:14px;text-align:center;color:#d1d5db;font-size:12px;">案件なし</td></tr></tbody>
+              <tfoot><tr class="cat-total-row"><td>小計</td><td style="text-align:right;font-weight:700;" class="ct-amount">¥0</td><td style="text-align:right;color:#9ca3af;" class="ct-comm">¥0</td><td></td></tr></tfoot></table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-tanaka-bonus')">＋ 案件を追加</button>
+            </div>
+          </div>
+          <div class="sales-right">
+            <div class="sr-title">田中花子 サマリー</div>
+            <div class="sr-kpi"><div class="sr-kpi-label">売上合計</div><div class="sr-kpi-val">¥1,600,000</div></div>
+            <div class="sr-kpi"><div class="sr-kpi-label">既存抜き売上</div><div class="sr-kpi-val green">¥1,000,000</div><div class="sr-kpi-sub">更新案件（¥600,000）を除く</div></div>
+            <div class="sr-kpi"><div class="sr-kpi-label">歩合合計</div><div class="sr-kpi-val" style="color:#6366f1;">¥126,000</div><div class="sr-kpi-sub">平均歩合率 7.9%</div></div>
+            <div class="sr-divider"></div>
+            <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">カテゴリ別</div>
+            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#3b82f6;"></span>新規</span><span><span class="sr-cat-val">¥800,000</span> <span class="sr-cat-comm">歩 ¥80,000</span></span></div>
+            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#9ca3af;"></span>更新</span><span><span class="sr-cat-val">¥600,000</span> <span class="sr-cat-comm">歩 ¥30,000</span></span></div>
+            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#8b5cf6;"></span>クロスセル</span><span><span class="sr-cat-val" style="color:#d1d5db;">—</span></span></div>
+            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#10b981;"></span>紹介</span><span><span class="sr-cat-val">¥200,000</span> <span class="sr-cat-comm">歩 ¥16,000</span></span></div>
+            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#f59e0b;"></span>ボーナス</span><span><span class="sr-cat-val" style="color:#d1d5db;">—</span></span></div>
+          </div>
+        </div>
+      </div><!-- /member-tanaka -->
+
+      <!-- ── 鈴木一郎 ── -->
+      <div id="member-suzuki" class="member-content">
+        <div class="sales-layout">
+          <div class="sales-tables">
+            <div class="cat-section">
+              <div class="cat-header"><div class="cat-dot" style="background:#3b82f6;"></div><div class="cat-name">新規案件</div><div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="10" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div><span class="cat-badge" style="background:#eff6ff; color:#3b82f6;">0件</span></div>
+              <table class="deal-table" data-new="1"><thead><tr><th class="th-conf">確定</th><th>案件名</th><th class="th-r" style="width:130px;">金額</th><th class="th-r" style="width:110px;">歩合額</th><th style="width:28px;"></th></tr></thead>
+              <tbody><tr><td colspan="5" style="padding:14px;text-align:center;color:#d1d5db;font-size:12px;">案件なし</td></tr></tbody>
+              <tfoot><tr class="cat-total-row"><td></td><td>小計</td><td style="text-align:right;font-weight:700;" class="ct-amount">¥0</td><td style="text-align:right;color:#9ca3af;" class="ct-comm">¥0</td><td></td></tr></tfoot></table>
+              <button class="cat-add-btn" onclick="addDealRow(this.previousElementSibling)">＋ 案件を追加</button>
+            </div>
+            <div class="cat-section">
+              <div class="cat-header"><div class="cat-dot" style="background:#9ca3af;"></div><div class="cat-name">更新案件</div><div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="5" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div><span class="cat-badge" style="background:#f9fafb; color:#6b7280;">1件 ¥250,000</span></div>
+              <table class="deal-table" id="dt-suzuki-renewal"><thead><tr><th>案件名</th><th class="th-r" style="width:130px;">金額</th><th class="th-r" style="width:110px;">歩合額</th><th style="width:28px;"></th></tr></thead>
+              <tbody><tr><td class="deal-td"><input class="deal-name" type="text" value="クライアントH（継続）"></td><td class="deal-td"><input class="deal-amount" type="text" value="250,000" oninput="calcRow(this)"></td><td class="deal-commission">¥12,500</td><td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td></tr></tbody>
+              <tfoot><tr class="cat-total-row"><td>小計</td><td style="text-align:right;font-weight:700;" class="ct-amount">¥250,000</td><td style="text-align:right;color:#059669;" class="ct-comm">¥12,500</td><td></td></tr></tfoot></table>
+              <button class="cat-add-btn" onclick="addDealRow('dt-suzuki-renewal')">＋ 案件を追加</button>
+            </div>
+          </div>
+          <div class="sales-right">
+            <div class="sr-title">鈴木一郎 サマリー</div>
+            <div class="sr-kpi"><div class="sr-kpi-label">売上合計</div><div class="sr-kpi-val">¥250,000</div></div>
+            <div class="sr-kpi"><div class="sr-kpi-label">既存抜き売上</div><div class="sr-kpi-val" style="color:#9ca3af;">¥0</div><div class="sr-kpi-sub">更新のみのため対象なし</div></div>
+            <div class="sr-kpi"><div class="sr-kpi-label">歩合合計</div><div class="sr-kpi-val" style="color:#6366f1;">¥12,500</div></div>
+          </div>
+        </div>
+      </div><!-- /member-suzuki -->
+
+      <!-- ── 全メンバーサマリー ── -->
+      <div class="all-member-section">
+        <div class="all-member-title">メンバー合計売上</div>
+        <div class="member-filter">
+          <div class="filter-chip on" onclick="toggleFilter(this,'yamada')" data-member="yamada">
+            <span class="chip-check">✓</span> 山田太郎
+          </div>
+          <div class="filter-chip on" onclick="toggleFilter(this,'tanaka')" data-member="tanaka">
+            <span class="chip-check">✓</span> 田中花子
+          </div>
+          <div class="filter-chip" onclick="toggleFilter(this,'suzuki')" data-member="suzuki">
+            <span class="chip-check" style="opacity:0;">✓</span> 鈴木一郎
+          </div>
+        </div>
+        <table class="member-all-table">
+          <thead>
+            <tr>
+              <th style="text-align:left; width:140px;">メンバー</th>
+              <th>売上合計</th>
+              <th>既存抜き売上</th>
+              <th>歩合合計</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-member-row="yamada">
+              <td>山田太郎</td>
+              <td>¥1,350,000</td>
+              <td>¥950,000</td>
+              <td style="color:#6366f1;">¥133,000</td>
+            </tr>
+            <tr data-member-row="tanaka">
+              <td>田中花子</td>
+              <td>¥1,600,000</td>
+              <td>¥1,000,000</td>
+              <td style="color:#6366f1;">¥126,000</td>
+            </tr>
+            <tr data-member-row="suzuki" class="inactive-member">
+              <td style="color:#d1d5db;">鈴木一郎</td>
+              <td style="color:#d1d5db;">¥250,000</td>
+              <td style="color:#d1d5db;">¥0</td>
+              <td style="color:#d1d5db;">¥12,500</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="combined-row" id="combined-total-row">
+              <td>選択合計</td>
+              <td id="comb-sales">¥2,950,000</td>
+              <td id="comb-existing">¥1,950,000</td>
+              <td id="comb-comm">¥259,000</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div><!-- /page-area -->
+    </div><!-- /screen-sales -->
+
+    <!-- ══════════════════════════════════════
+         入金予定ページ
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-income">
+    <div class="page-area" style="max-width: 1060px;">
+
+      <div class="page-header">
+        <div class="page-title">入金予定</div>
+        <div class="header-right">
+          <div class="month-nav">
+            <button class="mbtn">◀</button>
+            <div class="mlabel">2026年05月</div>
+            <button class="mbtn">▶</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="income-layout">
+        <div class="income-sections">
+
+          <!-- WEB保守管理（月次固定） -->
+          <div class="income-section">
+            <div class="income-section-header">
+              <span class="income-section-icon">🌐</span>
+              <span class="income-section-title">WEB保守管理（月次固定）</span>
+              <span class="income-section-count">3件</span>
+              <span class="income-section-total">¥230,000</span>
+            </div>
+            <table class="income-table">
+              <thead>
+                <tr>
+                  <th class="th-check"></th>
+                  <th>クライアント名</th>
+                  <th>備考</th>
+                  <th class="th-r">月額</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>株式会社クレバ</td>
+                  <td class="td-sub">保守管理</td>
+                  <td class="td-amount">¥100,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>合同会社アイドマ</td>
+                  <td class="td-sub">保守管理</td>
+                  <td class="td-amount">¥80,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>株式会社ウェブメーカー</td>
+                  <td class="td-sub">保守管理</td>
+                  <td class="td-amount">¥50,000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- メディア既存（今月分） -->
+          <div class="income-section">
+            <div class="income-section-header">
+              <span class="income-section-icon">🎬</span>
+              <span class="income-section-title">メディア既存（今月分）</span>
+              <span class="income-section-count">5件</span>
+              <span class="income-section-total">¥950,000</span>
+            </div>
+            <table class="income-table">
+              <thead>
+                <tr>
+                  <th class="th-check"></th>
+                  <th>クライアント名</th>
+                  <th class="th-c">ステータス</th>
+                  <th>担当</th>
+                  <th class="th-r">今月受取額</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="renewal-row">
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>STUDIO株式会社</td>
+                  <td class="td-c"><span class="renewal-badge-ok">✓ 更新確認済</span></td>
+                  <td class="td-sub">山田太郎</td>
+                  <td class="td-amount">¥300,000</td>
+                </tr>
+                <tr class="renewal-row">
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>ロボポップ株式会社</td>
+                  <td class="td-c"><span class="renewal-badge-tbd">⚠ 更新確認待ち</span></td>
+                  <td class="td-sub">田中花子</td>
+                  <td class="td-amount">¥200,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>有限会社マネクル</td>
+                  <td class="td-c"><span style="font-size:11px;color:#9ca3af;">継続中</span></td>
+                  <td class="td-sub">山田太郎</td>
+                  <td class="td-amount">¥200,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>ABC商事</td>
+                  <td class="td-c"><span style="font-size:11px;color:#9ca3af;">継続中</span></td>
+                  <td class="td-sub">鈴木一郎</td>
+                  <td class="td-amount">¥150,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>山田商事株式会社</td>
+                  <td class="td-c"><span style="font-size:11px;color:#9ca3af;">継続中</span></td>
+                  <td class="td-sub">田中花子</td>
+                  <td class="td-amount">¥100,000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 営業入力 -->
+          <div class="income-section">
+            <div class="income-section-header">
+              <span class="income-section-icon">💼</span>
+              <span class="income-section-title">営業入力（今月分）</span>
+              <span class="income-section-count">3件</span>
+              <span class="income-section-total">¥1,050,000</span>
+            </div>
+            <table class="income-table">
+              <thead>
+                <tr>
+                  <th class="th-check"></th>
+                  <th>クライアント名</th>
+                  <th>担当</th>
+                  <th>カテゴリ</th>
+                  <th class="th-r">金額</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>クリエイティブ産業株式会社</td>
+                  <td class="td-sub">田中花子</td>
+                  <td><span class="deal-cat-tag cat-new">新規</span></td>
+                  <td class="td-amount">¥500,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>株式会社フリービル</td>
+                  <td class="td-sub">山田太郎</td>
+                  <td><span class="deal-cat-tag cat-renewal">更新</span></td>
+                  <td class="td-amount">¥400,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>東京デジタル合同会社</td>
+                  <td class="td-sub">鈴木一郎</td>
+                  <td><span class="deal-cat-tag cat-cross">クロスセル</span></td>
+                  <td class="td-amount">¥150,000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- その他収入 -->
+          <div class="income-section">
+            <div class="income-section-header">
+              <span class="income-section-icon">💡</span>
+              <span class="income-section-title">その他収入</span>
+              <span class="income-section-count">5件</span>
+              <span class="income-section-total">¥222,445</span>
+            </div>
+            <table class="income-table">
+              <thead>
+                <tr>
+                  <th class="th-check"></th>
+                  <th>内容</th>
+                  <th class="th-type">種別</th>
+                  <th class="th-note">備考</th>
+                  <th class="th-r">金額</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>シティライン Lステップ代行</td>
+                  <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#f0f9ff;color:#0369a1;">月次</span></td>
+                  <td class="td-sub">毎月</td>
+                  <td class="td-amount">¥72,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>クリーンスター Instagram広告運用</td>
+                  <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#f0f9ff;color:#0369a1;">月次</span></td>
+                  <td class="td-sub">毎月</td>
+                  <td class="td-amount">¥35,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>富喜 Instagram運用</td>
+                  <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#f0f9ff;color:#0369a1;">月次</span></td>
+                  <td class="td-sub">毎月</td>
+                  <td class="td-amount">¥40,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>Google 広告代行（5/22入金）</td>
+                  <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#fdf4ff;color:#7c3aed;">単発</span></td>
+                  <td class="td-sub">パススルー手数料</td>
+                  <td class="td-amount">¥15,000</td>
+                </tr>
+                <tr>
+                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td>ワキタ 渡航費実費</td>
+                  <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#fdf4ff;color:#7c3aed;">単発</span></td>
+                  <td class="td-sub">税抜</td>
+                  <td class="td-amount">¥60,445</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div><!-- /income-sections -->
+
+        <!-- 右パネル -->
+        <div class="income-panel">
+          <div class="income-panel-title">入金予定合計</div>
+
+          <div class="income-panel-row">
+            <span class="income-panel-lbl">
+              <span class="income-panel-dot" style="background:#3b82f6"></span>WEB保守管理
+            </span>
+            <span class="income-panel-val">¥230,000</span>
+          </div>
+          <div class="income-panel-row">
+            <span class="income-panel-lbl">
+              <span class="income-panel-dot" style="background:#10b981"></span>メディア既存
+            </span>
+            <span class="income-panel-val">¥950,000</span>
+          </div>
+          <div class="income-panel-row">
+            <span class="income-panel-lbl">
+              <span class="income-panel-dot" style="background:#6366f1"></span>営業入力
+            </span>
+            <span class="income-panel-val">¥1,050,000</span>
+          </div>
+          <div class="income-panel-row">
+            <span class="income-panel-lbl">
+              <span class="income-panel-dot" style="background:#f59e0b"></span>その他収入
+            </span>
+            <span class="income-panel-val">¥222,445</span>
+          </div>
+
+          <div class="income-total-box">
+            <div class="income-total-lbl">月次入金予定合計</div>
+            <div class="income-total-val">¥2,452,445</div>
+          </div>
+
+          <!-- 入金確認サマリー -->
+          <div style="margin-top:14px; padding-top:14px; border-top:1px solid #e5e5e5;">
+            <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">入金確認</div>
+            <div style="margin-bottom:8px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span style="font-size:12px; color:#6b7280;">✓ 入金済み</span>
+                <span style="font-size:13px; font-weight:700; color:#059669;" id="income-paid-amount">¥0</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="font-size:12px; color:#6b7280;">未入金</span>
+                <span style="font-size:13px; font-weight:700; color:#374151;" id="income-unpaid-amount">¥2,452,445</span>
+              </div>
+            </div>
+            <!-- プログレスバー -->
+            <div style="height:6px; background:#e5e7eb; border-radius:999px; overflow:hidden;">
+              <div id="income-progress-bar" style="height:100%; width:0%; background:#10b981; border-radius:999px; transition:width 0.3s;"></div>
+            </div>
+            <div style="font-size:11px; color:#9ca3af; margin-top:4px; text-align:right;" id="income-paid-pct">0%</div>
+          </div>
+
+          <div style="margin-top:14px; padding-top:14px; border-top:1px solid #e5e5e5;">
+            <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">更新アクション（今月）</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <span style="font-size:12px; color:#6b7280;">✓ 確認済み</span>
+              <span style="font-size:13px; font-weight:700; color:#059669;">1件</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <span style="font-size:12px; color:#a16207;">⚠ 未確認</span>
+              <span style="font-size:13px; font-weight:700; color:#f59e0b;">1件</span>
+            </div>
+            <div style="font-size:11px; color:#9ca3af; margin-top:8px; padding:8px; background:#fffbeb; border-radius:5px;">
+              ¥200,000 が未確認のため<br>入金予定に計上中
+            </div>
+          </div>
+        </div><!-- /income-panel -->
+
+      </div><!-- /income-layout -->
+
+    </div><!-- /page-area -->
+    </div><!-- /screen-income -->
+
+
+    <!-- ══════════════════════════════════════
+         保守管理一覧ページ（WEB事業部）
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-webProfit">
+    <div class="page-area" style="max-width:1200px;">
+      <div class="page-header">
+        <div class="page-title">保守管理一覧</div>
+      </div>
+
+      <div class="summary-note">
+        📋 <span>WEB事業部 / クライアント別の保守管理契約。<strong>保守管理費は月額換算</strong>で入力（年払いの場合も月額を入力）。</span>
+      </div>
+
+      <!-- フィルタ -->
+      <div class="profit-filters">
+        <input type="text" class="profit-search" placeholder="🔍 クライアント検索...">
+        <label class="profit-toggle">
+          <input type="checkbox" checked>
+          解約済みを除く
+        </label>
+      </div>
+
+      <!-- テーブル（カード型・1カラム） -->
+      <div class="summary-section">
+        <div class="summary-section-head">
+          <div class="ss-dot" style="background:#3b82f6;"></div>
+          <div class="ss-title">WEBクライアント保守</div>
+          <span class="ss-count">8件</span>
+          <span class="ss-total" style="color:#059669;">差益 ¥107,800</span>
+        </div>
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th class="th-label">クライアント ▲</th>
+              <th class="th-label">契約期間</th>
+              <th class="th-label">支払</th>
+              <th>保守管理費(月)</th>
+              <th>原価</th>
+              <th>差益 ▲</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 赤字を上に並べる -->
+            <tr class="row-loss">
+              <td class="td-label">クリエイト株式会社</td>
+              <td class="td-label">
+                <span class="date-range">
+                  <input class="date-inp" type="date" value="2023-01-01">
+                  <span class="date-sep">〜</span>
+                  <input class="date-inp" type="date" placeholder="継続">
+                </span>
+              </td>
+              <td class="td-label">
+                <span class="freq-wrap">
+                  <label class="yearly-toggle"><input type="checkbox" onchange="onYearlyToggle(this)">年払い</label>
+                  <select class="month-sel" style="display:none;"></select>
+                </span>
+              </td>
+              <td><div class="fee-edit"><span class="fee-yen">¥</span><input class="fee-inp" type="text" oninput="formatFeeInput(this)" value="10,000"></div></td>
+              <td class="num-cost">¥15,000</td>
+              <td class="num-loss">△¥5,000</td>
+            </tr>
+            <tr class="row-loss">
+              <td class="td-label">ローカル商店街</td>
+              <td class="td-label">
+                <span class="date-range">
+                  <input class="date-inp" type="date" value="2024-03-15">
+                  <span class="date-sep">〜</span>
+                  <input class="date-inp" type="date" placeholder="継続">
+                </span>
+              </td>
+              <td class="td-label">
+                <span class="freq-wrap">
+                  <label class="yearly-toggle"><input type="checkbox" onchange="onYearlyToggle(this)">年払い</label>
+                  <select class="month-sel" style="display:none;"></select>
+                </span>
+              </td>
+              <td><div class="fee-edit"><span class="fee-yen">¥</span><input class="fee-inp" type="text" oninput="formatFeeInput(this)" value="5,000"></div></td>
+              <td class="num-cost">¥5,500</td>
+              <td class="num-loss">△¥500</td>
+            </tr>
+            <tr>
+              <td class="td-label">ヒラタ建設</td>
+              <td class="td-label">
+                <span class="date-range">
+                  <input class="date-inp" type="date" value="2022-06-01">
+                  <span class="date-sep">〜</span>
+                  <input class="date-inp" type="date" placeholder="継続">
+                </span>
+              </td>
+              <td class="td-label">
+                <span class="freq-wrap">
+                  <label class="yearly-toggle"><input type="checkbox" checked onchange="onYearlyToggle(this)">年払い</label>
+                  <select class="month-sel">
+                    <option>1月</option><option>2月</option><option>3月</option><option>4月</option><option>5月</option>
+                    <option selected>6月</option><option>7月</option><option>8月</option><option>9月</option>
+                    <option>10月</option><option>11月</option><option>12月</option>
+                  </select>
+                </span>
+              </td>
+              <td><div class="fee-edit"><span class="fee-yen">¥</span><input class="fee-inp" type="text" oninput="formatFeeInput(this)" value="15,000"></div></td>
+              <td class="num-cost">¥4,200</td>
+              <td class="num-profit">¥10,800</td>
+            </tr>
+            <tr>
+              <td class="td-label">株式会社サンライズ</td>
+              <td class="td-label">
+                <span class="date-range">
+                  <input class="date-inp" type="date" value="2021-04-01">
+                  <span class="date-sep">〜</span>
+                  <input class="date-inp" type="date" placeholder="継続">
+                </span>
+              </td>
+              <td class="td-label">
+                <span class="freq-wrap">
+                  <label class="yearly-toggle"><input type="checkbox" checked onchange="onYearlyToggle(this)">年払い</label>
+                  <select class="month-sel">
+                    <option>1月</option><option>2月</option><option>3月</option>
+                    <option selected>4月</option><option>5月</option><option>6月</option>
+                    <option>7月</option><option>8月</option><option>9月</option>
+                    <option>10月</option><option>11月</option><option>12月</option>
+                  </select>
+                </span>
+              </td>
+              <td><div class="fee-edit"><span class="fee-yen">¥</span><input class="fee-inp" type="text" oninput="formatFeeInput(this)" value="15,000"></div></td>
+              <td class="num-cost">¥3,500</td>
+              <td class="num-profit">¥11,500</td>
+            </tr>
+            <tr>
+              <td class="td-label">田中工業</td>
+              <td class="td-label">
+                <span class="date-range">
+                  <input class="date-inp" type="date" value="2024-07-01">
+                  <span class="date-sep">〜</span>
+                  <input class="date-inp" type="date" placeholder="継続">
+                </span>
+              </td>
+              <td class="td-label">
+                <span class="freq-wrap">
+                  <label class="yearly-toggle"><input type="checkbox" onchange="onYearlyToggle(this)">年払い</label>
+                  <select class="month-sel" style="display:none;"></select>
+                </span>
+              </td>
+              <td><div class="fee-edit"><span class="fee-yen">¥</span><input class="fee-inp" type="text" oninput="formatFeeInput(this)" value="20,000"></div></td>
+              <td class="num-cost">¥7,800</td>
+              <td class="num-profit">¥12,200</td>
+            </tr>
+            <tr>
+              <td class="td-label">メディアプラス</td>
+              <td class="td-label">
+                <span class="date-range">
+                  <input class="date-inp" type="date" value="2020-10-01">
+                  <span class="date-sep">〜</span>
+                  <input class="date-inp" type="date" placeholder="継続">
+                </span>
+              </td>
+              <td class="td-label">
+                <span class="freq-wrap">
+                  <label class="yearly-toggle"><input type="checkbox" onchange="onYearlyToggle(this)">年払い</label>
+                  <select class="month-sel" style="display:none;"></select>
+                </span>
+              </td>
+              <td><div class="fee-edit"><span class="fee-yen">¥</span><input class="fee-inp" type="text" oninput="formatFeeInput(this)" value="25,000"></div></td>
+              <td class="num-cost">¥6,000</td>
+              <td class="num-profit">¥19,000</td>
+            </tr>
+            <tr>
+              <td class="td-label">ABC マーケティング</td>
+              <td class="td-label">
+                <span class="date-range">
+                  <input class="date-inp" type="date" value="2023-09-15">
+                  <span class="date-sep">〜</span>
+                  <input class="date-inp" type="date" value="2026-03-31">
+                </span>
+              </td>
+              <td class="td-label">
+                <span class="freq-wrap">
+                  <label class="yearly-toggle"><input type="checkbox" onchange="onYearlyToggle(this)">年払い</label>
+                  <select class="month-sel" style="display:none;"></select>
+                </span>
+              </td>
+              <td><div class="fee-edit"><span class="fee-yen">¥</span><input class="fee-inp" type="text" oninput="formatFeeInput(this)" value="30,000"></div></td>
+              <td class="num-cost">¥8,200</td>
+              <td class="num-profit">¥21,800</td>
+            </tr>
+            <tr>
+              <td class="td-label">グローバルテック</td>
+              <td class="td-label">
+                <span class="date-range">
+                  <input class="date-inp" type="date" value="2019-04-01">
+                  <span class="date-sep">〜</span>
+                  <input class="date-inp" type="date" placeholder="継続">
+                </span>
+              </td>
+              <td class="td-label">
+                <span class="freq-wrap">
+                  <label class="yearly-toggle"><input type="checkbox" checked onchange="onYearlyToggle(this)">年払い</label>
+                  <select class="month-sel">
+                    <option>1月</option><option>2月</option><option>3月</option>
+                    <option selected>4月</option><option>5月</option><option>6月</option>
+                    <option>7月</option><option>8月</option><option>9月</option>
+                    <option>10月</option><option>11月</option><option>12月</option>
+                  </select>
+                </span>
+              </td>
+              <td><div class="fee-edit"><span class="fee-yen">¥</span><input class="fee-inp" type="text" oninput="formatFeeInput(this)" value="50,000"></div></td>
+              <td class="num-cost">¥12,000</td>
+              <td class="num-profit">¥38,000</td>
+            </tr>
+            <tr class="subtotal-row">
+              <td class="td-label" colspan="3">合計</td>
+              <td>¥170,000</td>
+              <td class="num-cost">¥62,200</td>
+              <td class="num-profit">¥107,800</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="summary-note" style="margin-top:12px; margin-bottom:0;">
+        💡 <span><strong>計算ロジック</strong>: 保守管理費 = 各クライアントの月額（年払いも月額換算で入力）。原価 = 原価管理ページの保守項目から、該当クライアントの月額換算合計。</span>
+      </div>
+
+    </div><!-- /page-area -->
+    </div><!-- /screen-webProfit -->
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+<script>
+  // ── 入金チェック ──
+
+  const INCOME_TOTAL = 2452445;
+
+  function togglePaid(btn) {
+    const row = btn.closest('tr');
+    const isPaid = row.classList.toggle('income-row-paid');
+    btn.classList.toggle('checked', isPaid);
+    updatePaidSummary();
+  }
+
+  function updatePaidSummary() {
+    let paidTotal = 0;
+    document.querySelectorAll('#screen-income .income-row-paid').forEach(row => {
+      const amountEl = row.querySelector('.td-amount');
+      if (amountEl) {
+        paidTotal += parseInt(amountEl.textContent.replace(/[¥,]/g, '')) || 0;
+      }
+    });
+    const unpaid = INCOME_TOTAL - paidTotal;
+    const pct = Math.round(paidTotal / INCOME_TOTAL * 100);
+
+    document.getElementById('income-paid-amount').textContent =
+      paidTotal > 0 ? '¥' + paidTotal.toLocaleString() : '¥0';
+    document.getElementById('income-unpaid-amount').textContent =
+      '¥' + unpaid.toLocaleString();
+    document.getElementById('income-progress-bar').style.width = pct + '%';
+    document.getElementById('income-paid-pct').textContent = pct + '%';
+  }
+
+  // 数値inputにカンマを自動挿入（フォーカス位置も維持）
+  function formatFeeInput(inp) {
+    const raw = inp.value.replace(/[^\d]/g, '');
+    if (!raw) { inp.value = ''; return; }
+    // キャレット位置を維持するため、カンマ数の差分を吸収
+    const beforeCaret = inp.value.slice(0, inp.selectionStart || 0).replace(/[^\d]/g, '').length;
+    const formatted = parseInt(raw, 10).toLocaleString();
+    inp.value = formatted;
+    // 数字 N 桁目に対応する位置にキャレットを戻す
+    let count = 0, pos = formatted.length;
+    for (let i = 0; i < formatted.length; i++) {
+      if (/\d/.test(formatted[i])) {
+        count++;
+        if (count === beforeCaret) { pos = i + 1; break; }
+      }
+    }
+    inp.setSelectionRange(pos, pos);
+  }
+
+  // 年払いチェックで請求月セレクトを表示/非表示
+  function onYearlyToggle(chk) {
+    const wrap = chk.closest('.freq-wrap');
+    const monthSel = wrap.querySelector('.month-sel');
+    if (chk.checked) {
+      // 選択肢が未生成なら生成
+      if (!monthSel.options.length || monthSel.options[0].text === '—') {
+        monthSel.innerHTML = '';
+        for (let m = 1; m <= 12; m++) {
+          const o = document.createElement('option');
+          o.text = m + '月';
+          monthSel.appendChild(o);
+        }
+      }
+      monthSel.style.display = '';
+    } else {
+      monthSel.style.display = 'none';
+    }
+  }
+
+  // スクリーン切替
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    const map = { input: 'nav-input', summary: 'nav-summary', sales: 'nav-sales', income: 'nav-income', webProfit: 'nav-webProfit' };
+    if (map[name]) document.getElementById(map[name]).classList.add('active');
+  }
+
+  // ── 営業入力 ──
+
+  // メンバータブ切替
+  function selectMember(el, memberId) {
+    el.closest('.member-tabs').querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.member-content').forEach(m => m.classList.remove('active'));
+    document.getElementById(memberId).classList.add('active');
+  }
+
+  // 歩合額を自動計算
+  function calcRow(inp) {
+    const tr = inp.closest('tr');
+    const section = inp.closest('.cat-section');
+    const rate = parseFloat(section?.querySelector('.cat-rate-inp')?.value || '0') || 0;
+    const amount = parseFloat((tr.querySelector('.deal-amount').value || '0').replace(/,/g, '')) || 0;
+    const comm = Math.round(amount * rate / 100);
+    const commEl = tr.querySelector('.deal-commission');
+    if (commEl) commEl.textContent = comm > 0 ? '¥' + comm.toLocaleString() : '—';
+    updateCatTotal(tr.closest('table'));
+  }
+
+  // セクション単位の歩合率変更時に全行を再計算
+  function recalcSection(rateInp) {
+    const section = rateInp.closest('.cat-section');
+    if (!section) return;
+    section.querySelectorAll('.deal-amount').forEach(inp => calcRow(inp));
+  }
+
+  // カテゴリ小計を再集計
+  function updateCatTotal(table) {
+    let totalAmt = 0, totalComm = 0;
+    table.querySelectorAll('tbody tr').forEach(tr => {
+      const amtEl = tr.querySelector('.deal-amount');
+      const commEl = tr.querySelector('.deal-commission');
+      if (!amtEl) return;
+      totalAmt  += parseFloat((amtEl.value || '0').replace(/,/g, '')) || 0;
+      totalComm += commEl && commEl.textContent !== '—'
+        ? parseFloat(commEl.textContent.replace(/[¥,]/g, '')) || 0 : 0;
+    });
+    const tfAmt  = table.querySelector('tfoot .ct-amount');
+    const tfComm = table.querySelector('tfoot .ct-comm');
+    if (tfAmt)  tfAmt.textContent  = '¥' + totalAmt.toLocaleString();
+    if (tfComm) tfComm.textContent = totalComm > 0 ? '¥' + totalComm.toLocaleString() : '¥0';
+  }
+
+  // 案件行を追加
+  function addDealRow(tableIdOrEl) {
+    const table = typeof tableIdOrEl === 'string'
+      ? document.getElementById(tableIdOrEl)
+      : tableIdOrEl;
+    if (!table) return;
+    // 「案件なし」の空行を削除
+    table.querySelectorAll('tbody tr td[colspan]').forEach(td => td.closest('tr').remove());
+    const tbody = table.querySelector('tbody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="deal-td"><input class="deal-name" type="text" placeholder="案件名を入力..."></td>
+      <td class="deal-td"><input class="deal-amount" type="text" placeholder="—" oninput="calcRow(this)" style="width:120px;text-align:right;border:none;background:transparent;font-family:inherit;font-size:13px;padding:4px 6px;border-radius:3px;"></td>
+      <td class="deal-commission">—</td>
+      <td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+    tr.querySelector('.deal-name').focus();
+  }
+
+  // 行削除
+  function delRow(btn) {
+    const tr = btn.closest('tr');
+    const table = tr.closest('table');
+    tr.remove();
+    if (table) updateCatTotal(table);
+  }
+
+  // 見込み/確定 切替
+  function toggleConfirm(btn) {
+    btn.classList.toggle('checked');
+  }
+
+  // メンバーフィルター切替
+  const MEMBER_DATA = {
+    yamada:  { sales: 1350000, existing: 950000,  comm: 133000 },
+    tanaka:  { sales: 1600000, existing: 1000000, comm: 126000 },
+    suzuki:  { sales: 250000,  existing: 0,        comm: 12500  },
+  };
+  function toggleFilter(chip, memberId) {
+    chip.classList.toggle('on');
+    const check = chip.querySelector('.chip-check');
+    check.style.opacity = chip.classList.contains('on') ? '1' : '0';
+    // テーブル行の見た目
+    const row = document.querySelector(`[data-member-row="${memberId}"]`);
+    if (row) row.classList.toggle('inactive-member', !chip.classList.contains('on'));
+    updateCombinedTotal();
+  }
+  function updateCombinedTotal() {
+    let s = 0, e = 0, c = 0;
+    document.querySelectorAll('.filter-chip.on').forEach(chip => {
+      const m = chip.getAttribute('data-member');
+      if (MEMBER_DATA[m]) { s += MEMBER_DATA[m].sales; e += MEMBER_DATA[m].existing; c += MEMBER_DATA[m].comm; }
+    });
+    document.getElementById('comb-sales').textContent     = '¥' + s.toLocaleString();
+    document.getElementById('comb-existing').textContent  = '¥' + e.toLocaleString();
+    document.getElementById('comb-comm').textContent      = '¥' + c.toLocaleString();
+  }
+
+  // セクションタブ切替
+  function selectTab(el, tabId) {
+    el.closest('.section-tabs').querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+  }
+
+  // 事業部タグをクリックで循環
+  const DEPTS = [
+    { key: 'contract', label: '受託' },
+    { key: 'web',      label: 'WEB' },
+    { key: 'media',    label: 'メディア' },
+    { key: 'none',     label: '未設定' },
+  ];
+  function cycleDept(el) {
+    const cur = el.getAttribute('data-dept');
+    const idx = DEPTS.findIndex(d => d.key === cur);
+    const next = DEPTS[(idx + 1) % DEPTS.length];
+    el.setAttribute('data-dept', next.key);
+    el.textContent = next.label;
+  }
+
+  // 行を追加
+  function addRow(tableId) {
+    const tbody = document.querySelector('#' + tableId + ' tbody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-name">
+        <div class="name-wrap">
+          <input class="name-inp" type="text" placeholder="項目名を入力...">
+        </div>
+      </td>
+      <td class="td-dept">
+        <span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span>
+      </td>
+      <td class="td-amount">
+        <input class="amount-inp" type="text" placeholder="—">
+      </td>
+      <td class="td-del">
+        <button class="row-del" onclick="this.closest('tr').remove()">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+    tr.querySelector('.name-inp').focus();
+  }
+
+  // from-app スタイルは編集開始で解除
+  document.addEventListener('input', e => {
+    if (e.target.classList.contains('from-app')) {
+      e.target.classList.remove('from-app');
+    }
+  });
+
+  // ── クライアントセレクター ──
+
+  const APP_CLIENTS = [
+    'STUDIO株式会社', 'ロボポップ株式会社', '有限会社マネクル', '株式会社クレバ',
+    '合同会社アイドマ', '株式会社ウェブメーカー', 'クリエイティブ産業株式会社',
+    '株式会社フリービル', '山田商事株式会社', '田中興業株式会社',
+    'ABC商事', '株式会社XYZソリューション', '合同会社テックパートナーズ',
+    '株式会社グローバルマーケット', '東京デジタル合同会社',
+  ];
+
+  let _csCurrentTrigger = null;
+  let _csAllowNew = false;
+
+  // deal-name input を cs-wrap に置き換え
+  function upgradeClientSelectors() {
+    document.querySelectorAll('input.deal-name').forEach(input => {
+      const table = input.closest('table');
+      const tableId = table?.id || '';
+      const allowNew = tableId.includes('-new') || table?.dataset.new === '1';
+      const val = input.value || '';
+      const wrap = document.createElement('div');
+      wrap.className = 'cs-wrap';
+      wrap.dataset.allowNew = allowNew;
+      wrap.dataset.selected = val;
+      wrap.innerHTML = buildCsTrigger(val, false);
+      input.closest('td').replaceChild(wrap, input);
+    });
+  }
+
+  function buildCsTrigger(val, isNewClient) {
+    const empty = !val;
+    return `<button class="cs-trigger ${empty ? 'empty' : ''}" type="button" onclick="openClientDD(this)">
+      <span class="cs-val">${empty ? 'クライアントを選択...' : val}</span>
+      ${isNewClient ? '<span class="cs-new-badge">新規</span>' : ''}
+      <span class="cs-arrow">▾</span>
+    </button>`;
+  }
+
+  function openClientDD(trigger) {
+    closeClientDD();
+    _csCurrentTrigger = trigger;
+    const wrap = trigger.closest('.cs-wrap');
+    _csAllowNew = wrap?.dataset.allowNew === 'true';
+    const selected = wrap?.dataset.selected || '';
+
+    const dd = document.getElementById('client-dropdown');
+    const newSection = document.getElementById('cdd-new-section');
+    newSection.style.display = _csAllowNew ? 'block' : 'none';
+    // 新規入力エリアはリセット
+    document.getElementById('cdd-new-input-wrap').style.display = 'none';
+    document.getElementById('cdd-new-show-btn').style.display = 'flex';
+
+    const searchEl = document.getElementById('cdd-search');
+    searchEl.value = '';
+    renderClientList('', selected);
+    dd.style.display = 'block';
+
+    // 位置決め
+    const rect = trigger.getBoundingClientRect();
+    const ddW = 280;
+    let left = rect.left;
+    if (left + ddW > window.innerWidth - 8) left = window.innerWidth - ddW - 8;
+    dd.style.top  = (rect.bottom + 4) + 'px';
+    dd.style.left = left + 'px';
+
+    setTimeout(() => searchEl.focus(), 30);
+  }
+
+  function closeClientDD() {
+    document.getElementById('client-dropdown').style.display = 'none';
+    _csCurrentTrigger = null;
+  }
+
+  function renderClientList(query, selected) {
+    const list = document.getElementById('cdd-list');
+    const filtered = query
+      ? APP_CLIENTS.filter(c => c.toLowerCase().includes(query.toLowerCase()))
+      : APP_CLIENTS;
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="cdd-empty">「${query}」に一致するクライアントがいません</div>`;
+      return;
+    }
+    list.innerHTML = filtered.map(c =>
+      `<div class="cdd-item ${c === selected ? 'selected' : ''}" onclick="pickClient('${c.replace(/'/g,"\\'")}')">
+        ${c}
+      </div>`
+    ).join('');
+  }
+
+  function filterClientList() {
+    const q = document.getElementById('cdd-search').value;
+    const wrap = _csCurrentTrigger?.closest('.cs-wrap');
+    renderClientList(q, wrap?.dataset.selected || '');
+  }
+
+  function pickClient(name) {
+    if (!_csCurrentTrigger) return;
+    const wrap = _csCurrentTrigger.closest('.cs-wrap');
+    wrap.dataset.selected = name;
+    wrap.innerHTML = buildCsTrigger(name, false);
+    closeClientDD();
+  }
+
+  function showNewClientInput() {
+    document.getElementById('cdd-new-show-btn').style.display = 'none';
+    const inputWrap = document.getElementById('cdd-new-input-wrap');
+    inputWrap.style.display = 'flex';
+    document.getElementById('cdd-new-text').value = '';
+    document.getElementById('cdd-new-text').focus();
+  }
+
+  function confirmNewClient() {
+    const name = document.getElementById('cdd-new-text').value.trim();
+    if (!name) return;
+    if (!_csCurrentTrigger) return;
+    const wrap = _csCurrentTrigger.closest('.cs-wrap');
+    wrap.dataset.selected = name;
+    wrap.innerHTML = buildCsTrigger(name, true); // isNewClient = true
+    closeClientDD();
+  }
+
+  // 外クリックで閉じる
+  document.addEventListener('click', e => {
+    const dd = document.getElementById('client-dropdown');
+    if (!dd) return;
+    if (dd.contains(e.target)) return;
+    if (e.target.closest('.cs-trigger')) return;
+    closeClientDD();
+  });
+
+  // addDealRow を上書き：cs-wrap を使うバージョン
+  function addDealRow(tableIdOrEl) {
+    const table = typeof tableIdOrEl === 'string'
+      ? document.getElementById(tableIdOrEl)
+      : tableIdOrEl;
+    if (!table) return;
+    const isNew = table.dataset.new === '1';
+    const allowNew = table.id?.includes('-new') || isNew;
+    // 「案件なし」の空行を削除
+    table.querySelectorAll('tbody tr td[colspan]').forEach(td => td.closest('tr').remove());
+    const tbody = table.querySelector('tbody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      ${isNew ? `<td class="td-check"><button class="row-chk" onclick="toggleConfirm(this)">✓</button></td>` : ''}
+      <td class="deal-td">
+        <div class="cs-wrap" data-allow-new="${allowNew}" data-selected="">
+          <button class="cs-trigger empty" type="button" onclick="openClientDD(this)">
+            <span class="cs-val">クライアントを選択...</span>
+            <span class="cs-arrow">▾</span>
+          </button>
+        </div>
+      </td>
+      <td class="deal-td"><input class="deal-amount" type="text" placeholder="—" oninput="calcRow(this)" style="width:120px;text-align:right;border:none;background:transparent;font-family:inherit;font-size:13px;padding:4px 6px;border-radius:3px;"></td>
+      <td class="deal-commission">—</td>
+      <td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    upgradeClientSelectors();
+  });
+</script>
+
+<!-- グローバル クライアントドロップダウン -->
+<div id="client-dropdown" class="client-dd" style="display:none;">
+  <div class="cdd-search-wrap">
+    <input id="cdd-search" class="cdd-search" type="text" placeholder="🔍 クライアントを検索..." oninput="filterClientList()">
+  </div>
+  <div id="cdd-list" class="cdd-list"></div>
+  <div id="cdd-new-section" class="cdd-new-section" style="display:none;">
+    <div id="cdd-new-show-btn" class="cdd-new-btn" onclick="showNewClientInput()">
+      ＋ 新規クライアントとして追加
+    </div>
+    <div id="cdd-new-input-wrap" class="cdd-new-input-wrap" style="display:none;">
+      <input id="cdd-new-text" class="cdd-new-text" type="text" placeholder="新規クライアント名..."
+             onkeydown="if(event.key==='Enter') confirmNewClient()">
+      <button class="cdd-confirm-btn" onclick="confirmNewClient()">追加</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

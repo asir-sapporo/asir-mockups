@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>サイドバー: 「リクエスト」と「原価リクエスト」を1つにまとめる（モックアップ）</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; margin: 0; background: #f1f5f9; color: #1e293b; font-size: 14px; line-height: 1.6; }
+  .page { max-width: 1120px; margin: 0 auto; padding: 28px 24px 80px; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  .lead { color: #64748b; font-size: 13px; margin: 0 0 26px; }
+  h2 { font-size: 17px; margin: 38px 0 14px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  .note { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin: 0 0 20px; }
+  .twocol { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+  .col-label { font-size: 12px; font-weight: 700; color: #94a3b8; letter-spacing: .04em; margin-bottom: 8px; text-transform: uppercase; }
+  .opt-tag { display:inline-block; font-size:11px; font-weight:700; padding:2px 10px; border-radius:999px; margin-bottom:10px; }
+  .opt-a { background:#dbeafe; color:#1d4ed8; }
+  .opt-b { background:#dcfce7; color:#15803d; }
+  .recommend { font-size:12px; color:#16a34a; font-weight:700; }
+
+  /* ===== ナビ再現 ===== */
+  .nav { width: 220px; flex-shrink: 0; background: #0f172a; border-radius: 10px; padding: 10px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: none; background: transparent; color: #cbd5e1; border-radius: 8px; cursor: pointer; font-size: 13px; text-align: left; margin-bottom: 2px; }
+  .nav-item:hover { background: #1e293b; }
+  .nav-item.active { background: #1e293b; color: #fff; }
+  .nav-icon { width: 18px; text-align: center; }
+  .nav-text { flex: 1; display: flex; align-items: center; justify-content: space-between; }
+  .badge { background: #ef4444; color:#fff; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; min-width: 18px; text-align: center; margin-left: 6px; }
+
+  /* ===== モーダル再現 ===== */
+  .modal { width: 520px; background: #fff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.18); overflow: hidden; border: 1px solid #e2e8f0; }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #e8ecf1; font-weight: 800; font-size: 15px; }
+  .modal-close { border: none; background: transparent; color: #94a3b8; font-size: 18px; cursor: pointer; }
+  .seg { display: flex; gap: 16px; padding: 0 18px; border-bottom: 1px solid #e8ecf1; background:#fff; }
+  .seg button { padding: 12px 4px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #64748b; font-weight: 500; font-size: 13px; cursor: pointer; }
+  .seg button.on { border-bottom-color: #3b82f6; color: #3b82f6; font-weight: 700; }
+  .seg .cnt { font-size: 10px; background:#ef4444; color:#fff; border-radius:999px; padding:0 6px; margin-left:4px; }
+  .subtabs { display:flex; gap:14px; padding: 10px 18px 0; }
+  .subtabs span { font-size:12px; color:#64748b; padding-bottom:6px; }
+  .subtabs span.on { color:#1e293b; font-weight:700; border-bottom:2px solid #94a3b8; }
+  .modal-body { padding: 16px 18px; background:#f8fafc; max-height: 280px; overflow:auto; }
+  .req-card { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .chips { display:flex; gap:8px; align-items:center; margin-bottom:6px; flex-wrap:wrap; }
+  .chip { font-size:11px; font-weight:700; padding:2px 9px; border-radius:4px; }
+  .chip.edit { background:#fef9c3; color:#854d0e; }
+  .chip.del { background:#fee2e2; color:#991b1b; }
+  .req-sub { font-weight:700; font-size:13px; }
+  .req-meta { font-size:12px; color:#475569; }
+  .req-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+  .btn { font-size:12px; font-weight:700; padding:6px 14px; border-radius:6px; cursor:pointer; border:1px solid transparent; }
+  .btn-sec { background:#fff; border-color:#e2e8f0; color:#475569; }
+  .btn-ok { background:#16a34a; color:#fff; }
+
+  /* メニュー（案B） */
+  .menu { width: 200px; background:#fff; border:1px solid #e2e8f0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.12); padding:6px; }
+  .menu button { display:flex; align-items:center; gap:8px; width:100%; padding:9px 10px; border:none; background:transparent; border-radius:7px; cursor:pointer; font-size:13px; color:#334155; text-align:left; }
+  .menu button:hover { background:#f1f5f9; }
+  .menu .cnt { margin-left:auto; font-size:10px; background:#ef4444; color:#fff; border-radius:999px; padding:0 6px; }
+
+  .qa { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding: 4px 18px; }
+  .qa .q { border-bottom: 1px dashed #e2e8f0; padding: 13px 0; }
+  .qa .q:last-child { border-bottom: none; }
+  .qa .q b { color:#1e293b; }
+  .qa .q .a { color:#475569; font-size:13px; margin-top:3px; }
+  .legend { font-size:12px; color:#64748b; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>サイドバー：「リクエスト」と「原価リクエスト」を1つにまとめる</h1>
+  <p class="lead">アプリ左ナビにある2つのメニュー（パスワード変更リクエスト＝『リクエスト』／原価編集リクエスト＝『原価リクエスト』）を1項目に統合します。2案を比較してください。<br>※静的イメージです。件数や内容はサンプル。</p>
+
+  <div class="note">権限メモ：『パスワード変更』は<b>管理者(ADMIN)のみ</b>、『原価編集』は<b>管理者ロール全般</b>に表示。統合後も<b>権限の無い種類は出しません</b>（例: 原価のみ権限の人にはパスワードタブを出さない）。</div>
+
+  <!-- before -->
+  <h2>① 今（2項目）</h2>
+  <div class="nav" style="margin-bottom:6px;">
+    <button class="nav-item"><span class="nav-icon">📥</span><span class="nav-text"><span>リクエスト</span><span class="badge">2</span></span></button>
+    <button class="nav-item"><span class="nav-icon">📥</span><span class="nav-text"><span>原価リクエスト</span><span class="badge">1</span></span></button>
+  </div>
+  <div class="legend">同じアイコン📥で名前が似ており、2行に分かれている。</div>
+
+  <!-- 案A -->
+  <h2>② 案A：統合モーダル＋上部タブ <span class="recommend">（おすすめ）</span></h2>
+  <div class="twocol">
+    <div>
+      <div class="col-label">ナビ（1項目・合計バッジ）</div>
+      <div class="nav">
+        <button class="nav-item active"><span class="nav-icon">📥</span><span class="nav-text"><span>リクエスト</span><span class="badge">3</span></span></button>
+      </div>
+      <div class="legend">バッジ＝表示できる種類の<br>保留中合計（2+1=3）。</div>
+    </div>
+    <div>
+      <div class="col-label">クリックで開くモーダル</div>
+      <div class="modal">
+        <div class="modal-head"><span>📥 リクエスト</span><button class="modal-close">×</button></div>
+        <div class="seg">
+          <button class="on">パスワード変更 <span class="cnt">2</span></button>
+          <button>原価編集 <span class="cnt">1</span></button>
+        </div>
+        <div class="subtabs"><span class="on">保留中 (2)</span><span>処理済み</span></div>
+        <div class="modal-body">
+          <div class="req-card">
+            <div class="chips"><span class="chip edit">✏️ 編集</span><span class="req-sub">あおぞら歯科 ＞ Instagram</span></div>
+            <div class="req-meta">申請者: 山田　2026/06/08 10:21</div>
+            <div class="req-actions"><span class="btn btn-sec">却下</span><span class="btn btn-ok">✓ 許可</span></div>
+          </div>
+          <div class="req-card">
+            <div class="chips"><span class="chip del">🗑 削除</span><span class="req-sub">さくらクリニック ＞ YouTube</span></div>
+            <div class="req-meta">申請者: 佐藤　2026/06/07 18:03</div>
+            <div class="req-actions"><span class="btn btn-sec">却下</span><span class="btn btn-ok">✓ 許可</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="legend">上部タブで「パスワード変更／原価編集」を切替。各タブの中は今まで通り「保留中／処理済み」。</div>
+    </div>
+  </div>
+
+  <!-- 案B -->
+  <h2>③ 案B：1項目＋クリックでメニュー選択</h2>
+  <div class="twocol">
+    <div>
+      <div class="col-label">ナビ（1項目）</div>
+      <div class="nav">
+        <button class="nav-item active"><span class="nav-icon">📥</span><span class="nav-text"><span>リクエスト</span><span class="badge">3</span></span></button>
+      </div>
+    </div>
+    <div>
+      <div class="col-label">クリックで出る小メニュー</div>
+      <div class="menu">
+        <button>📥 パスワード変更<span class="cnt">2</span></button>
+        <button>💰 原価編集<span class="cnt">1</span></button>
+      </div>
+      <div class="legend">選ぶと従来どおり各モーダルが開く（モーダル自体は変更なし）。<br>＝クリック数は1つ増えるが、実装は最小。</div>
+    </div>
+  </div>
+
+  <!-- Q&A -->
+  <h2>④ 決めてほしいこと</h2>
+  <div class="qa">
+    <div class="q"><b>Q1. 案A / 案B どちら？</b><div class="a">→ おすすめは<b>案A（統合モーダル＋タブ）</b>。1クリックで両方にアクセスでき、見た目もすっきり。</div></div>
+    <div class="q"><b>Q2. メニュー名</b>：1項目の名前は「リクエスト」で良い？（例:「承認リクエスト」等に変える？）</div>
+    <div class="q"><b>Q3. アイコン</b>：📥 のままで良い？</div>
+    <div class="q"><b>Q4. 既定タブ（案Aの場合）</b>：開いたとき最初に出すタブは「保留中がある方を優先」でOK？（両方あればパスワード変更を先頭）</div>
+  </div>
+  <div class="legend" style="margin-top:14px;">この内容でよければ「案Aで」等と返信してください。修正点があれば教えてください。</div>
+</div>
+</body>
+</html>
