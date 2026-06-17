@@ -400,6 +400,32 @@
     }
     .cat-add-btn:hover { color: #6366f1; background: #f8f7ff; }
 
+    /* 入力 / メンバー合計 表示切替トグル */
+    .sales-view-toggle { display: inline-flex; background: #f1f5f9; border-radius: 8px; padding: 3px; gap: 2px; margin: 4px 0 18px; }
+    .svt-btn {
+      padding: 7px 18px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+      color: #64748b; background: transparent; cursor: pointer; font-family: inherit; transition: all .2s;
+    }
+    .svt-btn:hover { color: #374151; }
+    .svt-btn.active { background: #fff; color: #6366f1; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    /* 案件タグ（サービス種別）プルダウン */
+    .deal-tag {
+      border: 1px solid #e5e5e5; background: #fff; font-size: 12px; font-family: inherit;
+      color: #374151; padding: 3px 6px; border-radius: 4px; cursor: pointer; max-width: 140px;
+    }
+    .deal-tag:hover { border-color: #c7d2fe; }
+    .deal-tag:focus { outline: 1px solid #6366f1; border-color: #6366f1; }
+    .deal-tag[data-group="media"] { background: #eef2ff; border-color: #c7d2fe; color: #4338ca; }
+    .deal-tag[data-group="other"] { background: #ecfeff; border-color: #a5f3fc; color: #0e7490; }
+    .deal-tag[data-group=""] { color: #9ca3af; }
+
+    /* グループ別売上（右サマリー） */
+    .sr-grp-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 4px 0; }
+    .sr-grp-name { display: flex; align-items: center; gap: 6px; font-weight: 700; color: #374151; }
+    .sr-grp-val { font-weight: 800; color: #111; }
+    .sr-grp-tag { display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; padding: 1px 0 1px 13px; }
+
     /* 全メンバーサマリー */
     .all-member-section { margin-top: 32px; padding-top: 24px; border-top: 2px solid #f0f0f0; }
     .all-member-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 14px; }
@@ -1451,6 +1477,15 @@
         </div>
       </div>
 
+      <!-- 入力 / メンバー合計 表示切替 -->
+      <div class="sales-view-toggle">
+        <button class="svt-btn active" id="svt-input" onclick="selectSalesView('input')">✏️ 入力</button>
+        <button class="svt-btn" id="svt-summary" onclick="selectSalesView('summary')">📊 メンバー合計</button>
+      </div>
+
+      <!-- ▼ 入力ビュー -->
+      <div id="sales-view-input">
+
       <!-- メンバータブ -->
       <div class="member-tabs">
         <div class="m-tab active" onclick="selectMember(this,'member-yamada')">山田太郎</div>
@@ -1759,8 +1794,13 @@
         </div>
       </div><!-- /member-suzuki -->
 
+      </div><!-- /sales-view-input -->
+
+      <!-- ▼ メンバー合計ビュー -->
+      <div id="sales-view-summary" style="display:none;">
+
       <!-- ── 全メンバーサマリー ── -->
-      <div class="all-member-section">
+      <div class="all-member-section" style="margin-top:8px; padding-top:0; border-top:none;">
         <div class="all-member-title">メンバー合計売上</div>
         <div class="member-filter">
           <div class="filter-chip on" onclick="toggleFilter(this,'yamada')" data-member="yamada">
@@ -1812,6 +1852,8 @@
           </tfoot>
         </table>
       </div>
+
+      </div><!-- /sales-view-summary -->
 
     </div><!-- /page-area -->
     </div><!-- /screen-sales -->
@@ -2442,6 +2484,7 @@
     const commEl = tr.querySelector('.deal-commission');
     if (commEl) commEl.textContent = comm > 0 ? '¥' + comm.toLocaleString() : '—';
     updateCatTotal(tr.closest('table'));
+    if (typeof updateAllGroupSummaries === 'function') updateAllGroupSummaries();
   }
 
   // セクション単位の歩合率変更時に全行を再計算
@@ -2480,6 +2523,7 @@
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="deal-td"><input class="deal-name" type="text" placeholder="案件名を入力..."></td>
+      <td class="deal-td">${dealTagSelectHTML('')}</td>
       <td class="deal-td"><input class="deal-amount" type="text" placeholder="—" oninput="calcRow(this)" style="width:120px;text-align:right;border:none;background:transparent;font-family:inherit;font-size:13px;padding:4px 6px;border-radius:3px;"></td>
       <td class="deal-commission">—</td>
       <td class="deal-td"><button class="deal-del" onclick="delRow(this)">✕</button></td>
@@ -2494,6 +2538,7 @@
     const table = tr.closest('table');
     tr.remove();
     if (table) updateCatTotal(table);
+    if (typeof updateAllGroupSummaries === 'function') updateAllGroupSummaries();
   }
 
   // 見込み/確定 切替
@@ -2740,8 +2785,117 @@
     tbody.appendChild(tr);
   }
 
+  // ── 入力 / メンバー合計 表示切替 ──
+  function selectSalesView(view) {
+    document.getElementById('sales-view-input').style.display   = view === 'input'   ? '' : 'none';
+    document.getElementById('sales-view-summary').style.display = view === 'summary' ? '' : 'none';
+    document.getElementById('svt-input').classList.toggle('active', view === 'input');
+    document.getElementById('svt-summary').classList.toggle('active', view === 'summary');
+  }
+
+  // ── 案件タグ（サービス種別）＆グループ別売上 ──
+  const TAG_GROUPS = {
+    media: { label: '受託メディア', color: '#6366f1', tags: ['SNS運用', 'コンサル'] },
+    other: { label: 'その他',       color: '#0ea5e9', tags: ['サイト', 'LINE', 'DTP', '映像制作'] },
+  };
+  function groupOfTag(tag) {
+    for (const k in TAG_GROUPS) if (TAG_GROUPS[k].tags.includes(tag)) return k;
+    return '';
+  }
+  function dealTagSelectHTML(tag) {
+    let opts = `<option value=""${tag ? '' : ' selected'}>— タグ未設定</option>`;
+    for (const k in TAG_GROUPS) {
+      opts += `<optgroup label="${TAG_GROUPS[k].label}">`;
+      for (const t of TAG_GROUPS[k].tags) opts += `<option value="${t}"${t === tag ? ' selected' : ''}>${t}</option>`;
+      opts += `</optgroup>`;
+    }
+    return `<select class="deal-tag" data-group="${groupOfTag(tag)}" onchange="onDealTagChange(this)">${opts}</select>`;
+  }
+  // デモ用の初期タグ割当（モック表示用）
+  const DEMO_TAGS = {
+    'クライアントA': 'SNS運用', 'クライアントB': 'コンサル', 'クライアントC（継続）': 'サイト',
+    'クライアントD 追加サービス': '映像制作', 'クライアントE': 'SNS運用', 'クライアントF（継続）': 'LINE',
+    'クライアントG（紹介）': 'コンサル', 'クライアントH（継続）': 'DTP',
+  };
+  function initDealTags() {
+    document.querySelectorAll('.deal-table').forEach(table => {
+      if (table.dataset.tagged) return;
+      table.dataset.tagged = '1';
+      const headRow = table.querySelector('thead tr');
+      const nameTh = [...headRow.children].find(th => th.textContent.trim() === '案件名');
+      const tagTh = document.createElement('th');
+      tagTh.textContent = 'タグ';
+      tagTh.style.width = '150px';
+      if (nameTh) nameTh.after(tagTh); else headRow.prepend(tagTh);
+      const colCount = headRow.children.length;
+      table.querySelectorAll('tbody tr').forEach(tr => {
+        const empty = tr.querySelector('td[colspan]');
+        if (empty) { empty.setAttribute('colspan', colCount); return; }
+        // 金額セルの直前にタグ列を差し込む（案件名はクライアント選択ウィジェットに
+        // 置換される場合があるため、確実に残る金額セルを基準にする）
+        const amtCell = tr.querySelector('.deal-amount')?.closest('td');
+        if (!amtCell) return;
+        const nameEl = tr.querySelector('.deal-name') || tr.querySelector('.cs-val');
+        const name = (nameEl?.value || nameEl?.textContent || '').trim();
+        const td = document.createElement('td');
+        td.className = 'deal-td';
+        td.innerHTML = dealTagSelectHTML(DEMO_TAGS[name] || '');
+        amtCell.before(td);
+      });
+    });
+    injectGroupPanels();
+    updateAllGroupSummaries();
+  }
+  function injectGroupPanels() {
+    document.querySelectorAll('.member-content .sales-right').forEach(panel => {
+      if (panel.querySelector('.sr-grp-block')) return;
+      const div = document.createElement('div');
+      div.className = 'sr-grp-block';
+      div.innerHTML = `<div class="sr-divider"></div>`
+        + `<div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">グループ別売上</div>`
+        + `<div class="sr-grp-body"></div>`;
+      panel.appendChild(div);
+    });
+  }
+  function yen(n) { return '¥' + (n || 0).toLocaleString(); }
+  function computeGroups(scope) {
+    const res = { media: { total: 0, tags: {} }, other: { total: 0, tags: {} } };
+    scope.querySelectorAll('.deal-tag').forEach(sel => {
+      const g = groupOfTag(sel.value);
+      if (!g) return;
+      const amtInp = sel.closest('tr').querySelector('.deal-amount');
+      const amt = parseFloat((amtInp?.value || '0').replace(/,/g, '')) || 0;
+      res[g].total += amt;
+      res[g].tags[sel.value] = (res[g].tags[sel.value] || 0) + amt;
+    });
+    return res;
+  }
+  function renderGroupRows(r) {
+    let html = '';
+    for (const k of ['media', 'other']) {
+      const g = TAG_GROUPS[k];
+      html += `<div class="sr-grp-row"><span class="sr-grp-name"><span class="sr-cat-dot" style="background:${g.color};"></span>${g.label}</span><span class="sr-grp-val">${yen(r[k].total)}</span></div>`;
+      for (const t of g.tags) {
+        const v = r[k].tags[t] || 0;
+        if (v) html += `<div class="sr-grp-tag"><span>${t}</span><span>${yen(v)}</span></div>`;
+      }
+    }
+    return html;
+  }
+  function updateAllGroupSummaries() {
+    document.querySelectorAll('.member-content').forEach(mc => {
+      const body = mc.querySelector('.sr-grp-body');
+      if (body) body.innerHTML = renderGroupRows(computeGroups(mc));
+    });
+  }
+  function onDealTagChange(sel) {
+    sel.setAttribute('data-group', groupOfTag(sel.value));
+    updateAllGroupSummaries();
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     upgradeClientSelectors();
+    initDealTags();
   });
 </script>
 
