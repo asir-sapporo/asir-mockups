@@ -530,7 +530,7 @@
     }
     .income-table thead th.th-r { text-align: right; width: 120px; white-space: nowrap; }
     .income-table thead th.th-c { text-align: center; width: 110px; }
-    .income-table thead th.th-check { width: 28px; padding: 7px 6px; }
+    .income-table thead th.th-check { width: 96px; padding: 7px 6px; text-align: center; font-size: 11px; }
     .income-table thead th.th-type { width: 58px; white-space: nowrap; }
     .income-table thead th.th-note { width: 80px; }
     .income-table tbody td { padding: 9px 10px; border-bottom: 1px solid #f7f7f7; color: #374151; }
@@ -552,6 +552,14 @@
     }
     .row-chk:hover { border-color: #059669; background: #f0fdf4; }
     .row-chk.checked { background: #059669; border-color: #059669; color: white; }
+    /* 入金状況プルダウン（未請求 / 請求済み / 入金済み） */
+    .pay-status {
+      border: 1px solid #e5e5e5; border-radius: 6px; font-size: 11px; font-weight: 700;
+      padding: 3px 6px; font-family: inherit; cursor: pointer; min-width: 84px;
+    }
+    .pay-status[data-status="unbilled"] { background: #f9fafb; color: #6b7280; border-color: #e5e7eb; }
+    .pay-status[data-status="billed"]   { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+    .pay-status[data-status="paid"]     { background: #f0fdf4; color: #059669; border-color: #bbf7d0; }
     /* 入金済み行 */
     .income-row-paid td { background: #dcfce7 !important; }
     .income-row-paid .td-amount { color: #15803d !important; font-weight: 700 !important; }
@@ -672,10 +680,11 @@
     <div class="sb-nav">
       <div class="sb-item" onclick="showScreen('dashboard')">📊 ダッシュボード</div>
       <div class="sb-section-label">経理</div>
-      <div class="sb-item active" id="nav-input" onclick="showScreen('input')">📝 入力</div>
+      <div class="sb-item active" id="nav-input" onclick="showScreen('input')">📝 販管費入力</div>
       <div class="sb-item" id="nav-summary" onclick="showScreen('summary')">📋 経理サマリー</div>
       <div class="sb-section-label">営業</div>
       <div class="sb-item" id="nav-sales" onclick="showScreen('sales')">💼 営業入力 <span class="sb-badge">2</span></div>
+      <div class="sb-item" id="nav-othersales" onclick="showScreen('othersales')">📦 その他売上入力</div>
       <div class="sb-section-label">収入管理</div>
       <div class="sb-item" id="nav-income" onclick="showScreen('income')">💰 入金予定</div>
       <div class="sb-item" id="nav-webProfit" onclick="showScreen('webProfit')">💹 保守管理一覧</div>
@@ -694,7 +703,7 @@
     <div class="page-area">
 
       <div class="page-header">
-        <div class="page-title">経理入力</div>
+        <div class="page-title">販管費入力</div>
         <div class="header-right">
           <div class="month-nav">
             <button class="mbtn">◀</button>
@@ -707,25 +716,27 @@
 
       <!-- セクションタブ（スプシの列カテゴリに対応） -->
       <div class="section-tabs">
-        <div class="s-tab active"  onclick="selectTab(this,'tab-uriage')">売上</div>
+        <div class="s-tab active"  onclick="selectTab(this,'tab-uriage')">売上原価</div>
         <div class="s-tab"        onclick="selectTab(this,'tab-tsushin')">通信費</div>
         <div class="s-tab"        onclick="selectTab(this,'tab-kokoku')">広告費</div>
         <div class="s-tab"        onclick="selectTab(this,'tab-ryohi')">旅費交通費</div>
-        <div class="s-tab"        onclick="selectTab(this,'tab-romu')">労務費</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-sharyo')">車両費</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-romu')">人件費</div>
         <div class="s-tab"        onclick="selectTab(this,'tab-fukuri')">福利厚生費</div>
         <div class="s-tab"        onclick="selectTab(this,'tab-gachu')">外注費用</div>
+        <div class="s-tab"        onclick="selectTab(this,'tab-shiharai')">支払い報酬</div>
         <div class="s-tab"        onclick="selectTab(this,'tab-shoumou')">消耗品費</div>
         <div class="s-tab"        onclick="selectTab(this,'tab-tesuryo')">手数料</div>
       </div>
 
-      <!-- ─── 売上タブ ─── -->
+      <!-- ─── 売上原価タブ ─── -->
       <div id="tab-uriage" class="tab-content active">
         <div class="app-ref-banner">
           <span class="app-ref-label">📊 アプリ自動集計（参考）</span>
           <div class="app-ref-vals">
-            <div class="app-ref-item"><span class="app-ref-key">受託 売上</span><span class="app-ref-val">¥3,000,000</span></div>
-            <div class="app-ref-item"><span class="app-ref-key">WEB 売上</span><span class="app-ref-val">¥1,200,000</span></div>
-            <div class="app-ref-item"><span class="app-ref-key">メディア 売上</span><span class="app-ref-val">¥1,600,000</span></div>
+            <div class="app-ref-item"><span class="app-ref-key">受託 原価</span><span class="app-ref-val">¥3,000,000</span></div>
+            <div class="app-ref-item"><span class="app-ref-key">WEB 原価</span><span class="app-ref-val">¥1,200,000</span></div>
+            <div class="app-ref-item"><span class="app-ref-key">メディア 原価</span><span class="app-ref-val">¥1,600,000</span></div>
           </div>
         </div>
         <table class="input-table" id="table-uriage">
@@ -945,7 +956,7 @@
         </div>
       </div>
 
-      <!-- ─── 労務費タブ ─── -->
+      <!-- ─── 人件費タブ ─── -->
       <div id="tab-romu" class="tab-content">
         <table class="input-table" id="table-romu">
           <thead>
@@ -1173,6 +1184,90 @@
         </div>
       </div>
 
+      <!-- ─── 車両費タブ ─── -->
+      <div id="tab-sharyo" class="tab-content">
+        <table class="input-table" id="table-sharyo">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="ガソリン代"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="32,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="駐車場代"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="18,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥50,000</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-sharyo')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <!-- ─── 支払い報酬タブ ─── -->
+      <div id="tab-shiharai" class="tab-content">
+        <table class="input-table" id="table-shiharai">
+          <thead>
+            <tr>
+              <th style="padding-left:10px;">項目名</th>
+              <th style="width:88px; text-align:center;">事業部</th>
+              <th style="width:160px; text-align:right;">金額</th>
+              <th class="th-del"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="顧問税理士"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="none" onclick="cycleDept(this)">未設定</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="33,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+            <tr>
+              <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="業務委託 佐藤"></div></td>
+              <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+              <td class="td-amount"><input class="amount-inp" type="text" value="150,000"></td>
+              <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="padding-left:10px;">合計</td>
+              <td class="total-amount" style="text-align:right;">¥183,000</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-row-btn" onclick="addRow('table-shiharai')">
+          <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+        </button>
+        <div class="form-footer">
+          <button class="btn-outline">クリア</button>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
     </div><!-- /page-area -->
     </div><!-- /screen-input -->
 
@@ -1300,11 +1395,11 @@
             </table>
           </div>
 
-          <!-- 労務費 -->
+          <!-- 人件費 -->
           <div class="summary-section">
             <div class="summary-section-head">
               <div class="ss-dot" style="background:#d97706;"></div>
-              <div class="ss-title">労務費</div>
+              <div class="ss-title">人件費</div>
               <span class="ss-count">2項目</span>
               <span class="ss-total">¥3,088,000</span>
             </div>
@@ -1382,7 +1477,7 @@
           <div class="pl-row"><span class="pl-lbl indent">通信費</span><span class="pl-val sub">¥38,876</span></div>
           <div class="pl-row"><span class="pl-lbl indent">広告費</span><span class="pl-val sub">¥458,762</span></div>
           <div class="pl-row"><span class="pl-lbl indent">旅費交通費</span><span class="pl-val sub">¥48,368</span></div>
-          <div class="pl-row"><span class="pl-lbl indent">労務費</span><span class="pl-val sub">¥3,088,000</span></div>
+          <div class="pl-row"><span class="pl-lbl indent">人件費</span><span class="pl-val sub">¥3,088,000</span></div>
           <div class="pl-row"><span class="pl-lbl indent">外注費用</span><span class="pl-val sub">¥371,092</span></div>
           <div class="pl-divider thick"></div>
           <div class="pl-total">
@@ -1453,7 +1548,7 @@
           <tr class="section-header-row"><td colspan="4">コスト（手入力のみ）</td></tr>
           <tr><td>通信費</td><td>¥38,876</td><td style="color:#9ca3af;">—</td><td style="color:#9ca3af; font-size:12px;">アプリ未集計</td></tr>
           <tr><td>広告費</td><td>¥458,762</td><td style="color:#9ca3af;">—</td><td style="color:#9ca3af; font-size:12px;">アプリ未集計</td></tr>
-          <tr><td>労務費</td><td>¥3,088,000</td><td style="color:#9ca3af;">—</td><td style="color:#9ca3af; font-size:12px;">アプリ未集計</td></tr>
+          <tr><td>人件費</td><td>¥3,088,000</td><td style="color:#9ca3af;">—</td><td style="color:#9ca3af; font-size:12px;">アプリ未集計</td></tr>
         </tbody>
       </table>
     </div>
@@ -1859,6 +1954,70 @@
     </div><!-- /screen-sales -->
 
     <!-- ══════════════════════════════════════
+         その他売上入力
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-othersales">
+    <div class="page-area" style="max-width:1060px;">
+
+      <div class="page-header">
+        <div class="page-title">その他売上入力</div>
+        <div class="header-right">
+          <div class="month-nav">
+            <button class="mbtn">◀</button>
+            <div class="mlabel">2026年05月</div>
+            <button class="mbtn">▶</button>
+          </div>
+          <button class="btn-save">保存する</button>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px solid #e5e5e5; border-radius:6px; padding:9px 14px; margin-bottom:14px; font-size:12px; color:#6b7280;">
+        ℹ️ <span>営業入力・保守管理に含まれない単発の売上（物販・スポット案件・補助金など）をここで入力します。</span>
+      </div>
+
+      <table class="input-table" id="table-othersales">
+        <thead>
+          <tr>
+            <th style="padding-left:10px;">項目名</th>
+            <th style="width:88px; text-align:center;">事業部</th>
+            <th style="width:160px; text-align:right;">金額</th>
+            <th class="th-del"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="物販（グッズ）"></div></td>
+            <td class="td-dept"><span class="dept-tag" data-dept="media" onclick="cycleDept(this)">メディア</span></td>
+            <td class="td-amount"><input class="amount-inp" type="text" value="45,000"></td>
+            <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+          </tr>
+          <tr>
+            <td class="td-name"><div class="name-wrap"><input class="name-inp" type="text" value="スポット撮影"></div></td>
+            <td class="td-dept"><span class="dept-tag" data-dept="contract" onclick="cycleDept(this)">受託</span></td>
+            <td class="td-amount"><input class="amount-inp" type="text" value="120,000"></td>
+            <td class="td-del"><button class="row-del" onclick="this.closest('tr').remove()">✕</button></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="2" style="padding-left:10px;">合計</td>
+            <td class="total-amount" style="text-align:right;">¥165,000</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+      <button class="add-row-btn" onclick="addRow('table-othersales')">
+        <span style="font-size:15px; font-weight:300; line-height:1;">+</span> 項目を追加
+      </button>
+      <div class="form-footer">
+        <button class="btn-outline">クリア</button>
+        <button class="btn-save">保存する</button>
+      </div>
+
+    </div><!-- /page-area -->
+    </div><!-- /screen-othersales -->
+
+    <!-- ══════════════════════════════════════
          入金予定ページ
     ══════════════════════════════════════ -->
     <div class="screen" id="screen-income">
@@ -1889,7 +2048,7 @@
             <table class="income-table">
               <thead>
                 <tr>
-                  <th class="th-check"></th>
+                  <th class="th-check">入金状況</th>
                   <th>クライアント名</th>
                   <th>備考</th>
                   <th class="th-r">月額</th>
@@ -1897,19 +2056,19 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>株式会社クレバ</td>
                   <td class="td-sub">保守管理</td>
                   <td class="td-amount">¥100,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>合同会社アイドマ</td>
                   <td class="td-sub">保守管理</td>
                   <td class="td-amount">¥80,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>株式会社ウェブメーカー</td>
                   <td class="td-sub">保守管理</td>
                   <td class="td-amount">¥50,000</td>
@@ -1929,7 +2088,7 @@
             <table class="income-table">
               <thead>
                 <tr>
-                  <th class="th-check"></th>
+                  <th class="th-check">入金状況</th>
                   <th>クライアント名</th>
                   <th class="th-c">ステータス</th>
                   <th>担当</th>
@@ -1938,35 +2097,35 @@
               </thead>
               <tbody>
                 <tr class="renewal-row">
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>STUDIO株式会社</td>
                   <td class="td-c"><span class="renewal-badge-ok">✓ 更新確認済</span></td>
                   <td class="td-sub">山田太郎</td>
                   <td class="td-amount">¥300,000</td>
                 </tr>
                 <tr class="renewal-row">
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>ロボポップ株式会社</td>
                   <td class="td-c"><span class="renewal-badge-tbd">⚠ 更新確認待ち</span></td>
                   <td class="td-sub">田中花子</td>
                   <td class="td-amount">¥200,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>有限会社マネクル</td>
                   <td class="td-c"><span style="font-size:11px;color:#9ca3af;">継続中</span></td>
                   <td class="td-sub">山田太郎</td>
                   <td class="td-amount">¥200,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>ABC商事</td>
                   <td class="td-c"><span style="font-size:11px;color:#9ca3af;">継続中</span></td>
                   <td class="td-sub">鈴木一郎</td>
                   <td class="td-amount">¥150,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>山田商事株式会社</td>
                   <td class="td-c"><span style="font-size:11px;color:#9ca3af;">継続中</span></td>
                   <td class="td-sub">田中花子</td>
@@ -1987,7 +2146,7 @@
             <table class="income-table">
               <thead>
                 <tr>
-                  <th class="th-check"></th>
+                  <th class="th-check">入金状況</th>
                   <th>クライアント名</th>
                   <th>担当</th>
                   <th>カテゴリ</th>
@@ -1996,21 +2155,21 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>クリエイティブ産業株式会社</td>
                   <td class="td-sub">田中花子</td>
                   <td><span class="deal-cat-tag cat-new">新規</span></td>
                   <td class="td-amount">¥500,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>株式会社フリービル</td>
                   <td class="td-sub">山田太郎</td>
                   <td><span class="deal-cat-tag cat-renewal">更新</span></td>
                   <td class="td-amount">¥400,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>東京デジタル合同会社</td>
                   <td class="td-sub">鈴木一郎</td>
                   <td><span class="deal-cat-tag cat-cross">クロスセル</span></td>
@@ -2031,7 +2190,7 @@
             <table class="income-table">
               <thead>
                 <tr>
-                  <th class="th-check"></th>
+                  <th class="th-check">入金状況</th>
                   <th>内容</th>
                   <th class="th-type">種別</th>
                   <th class="th-note">備考</th>
@@ -2040,35 +2199,35 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>シティライン Lステップ代行</td>
                   <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#f0f9ff;color:#0369a1;">月次</span></td>
                   <td class="td-sub">毎月</td>
                   <td class="td-amount">¥72,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>クリーンスター Instagram広告運用</td>
                   <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#f0f9ff;color:#0369a1;">月次</span></td>
                   <td class="td-sub">毎月</td>
                   <td class="td-amount">¥35,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>富喜 Instagram運用</td>
                   <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#f0f9ff;color:#0369a1;">月次</span></td>
                   <td class="td-sub">毎月</td>
                   <td class="td-amount">¥40,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>Google 広告代行（5/22入金）</td>
                   <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#fdf4ff;color:#7c3aed;">単発</span></td>
                   <td class="td-sub">パススルー手数料</td>
                   <td class="td-amount">¥15,000</td>
                 </tr>
                 <tr>
-                  <td class="td-check"><button class="row-chk" onclick="togglePaid(this)">✓</button></td>
+                  <td class="td-check"><select class="pay-status" data-status="billed" onchange="onPayStatusChange(this)"><option value="unbilled">未請求</option><option value="billed" selected>請求済み</option><option value="paid">入金済み</option></select></td>
                   <td>ワキタ 渡航費実費</td>
                   <td><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;background:#fdf4ff;color:#7c3aed;">単発</span></td>
                   <td class="td-sub">税抜</td>
@@ -2397,6 +2556,14 @@
     updatePaidSummary();
   }
 
+  // 入金状況プルダウン（未請求 / 請求済み / 入金済み）
+  // 「入金済み」のみ入金済み行として集計。請求済みで止まっているものは未入金扱い。
+  function onPayStatusChange(sel) {
+    sel.setAttribute('data-status', sel.value);
+    sel.closest('tr').classList.toggle('income-row-paid', sel.value === 'paid');
+    updatePaidSummary();
+  }
+
   function updatePaidSummary() {
     let paidTotal = 0;
     document.querySelectorAll('#screen-income .income-row-paid').forEach(row => {
@@ -2460,7 +2627,7 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
     document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-    const map = { input: 'nav-input', summary: 'nav-summary', sales: 'nav-sales', income: 'nav-income', webProfit: 'nav-webProfit' };
+    const map = { input: 'nav-input', summary: 'nav-summary', sales: 'nav-sales', othersales: 'nav-othersales', income: 'nav-income', webProfit: 'nav-webProfit' };
     if (map[name]) document.getElementById(map[name]).classList.add('active');
   }
 
