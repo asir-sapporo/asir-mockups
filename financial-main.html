@@ -329,6 +329,7 @@
     .sr-cat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .sr-cat-val { font-weight: 600; color: #374151; }
     .sr-cat-comm { font-size: 11px; color: #9ca3af; }
+    .sr-sec-label { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
 
     /* カテゴリセクション（入金予定・経理サマリーと統一・カード型） */
     .cat-section {
@@ -1730,75 +1731,12 @@
               <button class="cat-add-btn" onclick="addDealRow('dt-yamada-ref')">＋ 案件を追加</button>
             </div>
 
-            <!-- ボーナス系 -->
-            <div class="cat-section" id="cats-yamada-bonus">
-              <div class="cat-header">
-                <div class="cat-dot" style="background:#f59e0b;"></div>
-                <div class="cat-name">ボーナス系</div>
-                <div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="15" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div>
-                <span class="cat-badge" style="background:#fffbeb; color:#d97706;" id="badge-yamada-bonus">0件</span>
-              </div>
-              <table class="deal-table" id="dt-yamada-bonus">
-                <thead><tr>
-                  <th>案件名</th>
-                  <th class="th-r" style="width:130px;">金額</th>
-                  <th class="th-r" style="width:110px;">歩合額</th>
-                  <th style="width:28px;"></th>
-                </tr></thead>
-                <tbody>
-                  <tr><td colspan="4" style="padding:14px; text-align:center; color:#d1d5db; font-size:12px;">案件なし</td></tr>
-                </tbody>
-                <tfoot><tr class="cat-total-row">
-                  <td>小計</td>
-                  <td style="text-align:right; font-weight:700;" class="ct-amount">¥0</td>
-                  <td style="text-align:right; color:#9ca3af;" class="ct-comm">¥0</td>
-                  <td></td>
-                </tr></tfoot>
-              </table>
-              <button class="cat-add-btn" onclick="addDealRow('dt-yamada-bonus')">＋ 案件を追加</button>
-            </div>
-
           </div><!-- /sales-tables -->
 
           <!-- 右パネル: メンバーサマリー -->
           <div class="sales-right" id="sr-yamada">
             <div class="sr-title">山田太郎 サマリー</div>
-            <div class="sr-kpi">
-              <div class="sr-kpi-label">売上合計</div>
-              <div class="sr-kpi-val">¥1,350,000</div>
-            </div>
-            <div class="sr-kpi">
-              <div class="sr-kpi-label">既存抜き売上</div>
-              <div class="sr-kpi-val green">¥950,000</div>
-              <div class="sr-kpi-sub">更新案件（¥400,000）を除く</div>
-            </div>
-            <div class="sr-kpi">
-              <div class="sr-kpi-label">歩合合計</div>
-              <div class="sr-kpi-val" style="color:#6366f1;">¥133,000</div>
-              <div class="sr-kpi-sub">平均歩合率 9.9%</div>
-            </div>
-            <div class="sr-divider"></div>
-            <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">カテゴリ別</div>
-            <div class="sr-cat-row">
-              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#3b82f6;"></span>新規</span>
-              <span><span class="sr-cat-val">¥800,000</span> <span class="sr-cat-comm">歩 ¥95,000</span></span>
-            </div>
-            <div class="sr-cat-row">
-              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#9ca3af;"></span>更新</span>
-              <span><span class="sr-cat-val">¥400,000</span> <span class="sr-cat-comm">歩 ¥20,000</span></span>
-            </div>
-            <div class="sr-cat-row">
-              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#8b5cf6;"></span>クロスセル</span>
-              <span><span class="sr-cat-val">¥150,000</span> <span class="sr-cat-comm">歩 ¥18,000</span></span>
-            </div>
-            <div class="sr-cat-row">
-              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#10b981;"></span>紹介</span>
-              <span><span class="sr-cat-val" style="color:#d1d5db;">—</span></span>
-            </div>
-            <div class="sr-cat-row">
-              <span class="sr-cat-name"><span class="sr-cat-dot" style="background:#f59e0b;"></span>ボーナス</span>
-              <span><span class="sr-cat-val" style="color:#d1d5db;">—</span></span>
-            </div>
+            <div class="sr-summary-body"></div>
           </div>
 
         </div><!-- /sales-layout -->
@@ -1836,26 +1774,10 @@
               <tfoot><tr class="cat-total-row"><td>小計</td><td style="text-align:right;font-weight:700;" class="ct-amount">¥200,000</td><td style="text-align:right;color:#059669;" class="ct-comm">¥16,000</td><td></td></tr></tfoot></table>
               <button class="cat-add-btn" onclick="addDealRow('dt-tanaka-ref')">＋ 案件を追加</button>
             </div>
-            <div class="cat-section">
-              <div class="cat-header"><div class="cat-dot" style="background:#f59e0b;"></div><div class="cat-name">ボーナス系</div><div class="cat-rate-wrap"><span class="cat-rate-label">歩合</span><input class="cat-rate-inp" type="text" value="15" oninput="recalcSection(this)"><span class="cat-rate-label">%</span></div><span class="cat-badge" style="background:#fffbeb; color:#d97706;">0件</span></div>
-              <table class="deal-table" id="dt-tanaka-bonus"><thead><tr><th>案件名</th><th class="th-r" style="width:130px;">金額</th><th class="th-r" style="width:110px;">歩合額</th><th style="width:28px;"></th></tr></thead>
-              <tbody><tr><td colspan="4" style="padding:14px;text-align:center;color:#d1d5db;font-size:12px;">案件なし</td></tr></tbody>
-              <tfoot><tr class="cat-total-row"><td>小計</td><td style="text-align:right;font-weight:700;" class="ct-amount">¥0</td><td style="text-align:right;color:#9ca3af;" class="ct-comm">¥0</td><td></td></tr></tfoot></table>
-              <button class="cat-add-btn" onclick="addDealRow('dt-tanaka-bonus')">＋ 案件を追加</button>
-            </div>
           </div>
           <div class="sales-right">
             <div class="sr-title">田中花子 サマリー</div>
-            <div class="sr-kpi"><div class="sr-kpi-label">売上合計</div><div class="sr-kpi-val">¥1,600,000</div></div>
-            <div class="sr-kpi"><div class="sr-kpi-label">既存抜き売上</div><div class="sr-kpi-val green">¥1,000,000</div><div class="sr-kpi-sub">更新案件（¥600,000）を除く</div></div>
-            <div class="sr-kpi"><div class="sr-kpi-label">歩合合計</div><div class="sr-kpi-val" style="color:#6366f1;">¥126,000</div><div class="sr-kpi-sub">平均歩合率 7.9%</div></div>
-            <div class="sr-divider"></div>
-            <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">カテゴリ別</div>
-            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#3b82f6;"></span>新規</span><span><span class="sr-cat-val">¥800,000</span> <span class="sr-cat-comm">歩 ¥80,000</span></span></div>
-            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#9ca3af;"></span>更新</span><span><span class="sr-cat-val">¥600,000</span> <span class="sr-cat-comm">歩 ¥30,000</span></span></div>
-            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#8b5cf6;"></span>クロスセル</span><span><span class="sr-cat-val" style="color:#d1d5db;">—</span></span></div>
-            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#10b981;"></span>紹介</span><span><span class="sr-cat-val">¥200,000</span> <span class="sr-cat-comm">歩 ¥16,000</span></span></div>
-            <div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:#f59e0b;"></span>ボーナス</span><span><span class="sr-cat-val" style="color:#d1d5db;">—</span></span></div>
+            <div class="sr-summary-body"></div>
           </div>
         </div>
       </div><!-- /member-tanaka -->
@@ -1881,9 +1803,7 @@
           </div>
           <div class="sales-right">
             <div class="sr-title">鈴木一郎 サマリー</div>
-            <div class="sr-kpi"><div class="sr-kpi-label">売上合計</div><div class="sr-kpi-val">¥250,000</div></div>
-            <div class="sr-kpi"><div class="sr-kpi-label">既存抜き売上</div><div class="sr-kpi-val" style="color:#9ca3af;">¥0</div><div class="sr-kpi-sub">更新のみのため対象なし</div></div>
-            <div class="sr-kpi"><div class="sr-kpi-label">歩合合計</div><div class="sr-kpi-val" style="color:#6366f1;">¥12,500</div></div>
+            <div class="sr-summary-body"></div>
           </div>
         </div>
       </div><!-- /member-suzuki -->
@@ -1912,36 +1832,19 @@
             <tr>
               <th style="text-align:left; width:140px;">メンバー</th>
               <th>売上合計</th>
-              <th>既存抜き売上</th>
+              <th>確定売上</th>
+              <th>売上(見込み)</th>
               <th>歩合合計</th>
             </tr>
           </thead>
-          <tbody>
-            <tr data-member-row="yamada">
-              <td>山田太郎</td>
-              <td>¥1,350,000</td>
-              <td>¥950,000</td>
-              <td style="color:#6366f1;">¥133,000</td>
-            </tr>
-            <tr data-member-row="tanaka">
-              <td>田中花子</td>
-              <td>¥1,600,000</td>
-              <td>¥1,000,000</td>
-              <td style="color:#6366f1;">¥126,000</td>
-            </tr>
-            <tr data-member-row="suzuki" class="inactive-member">
-              <td style="color:#d1d5db;">鈴木一郎</td>
-              <td style="color:#d1d5db;">¥250,000</td>
-              <td style="color:#d1d5db;">¥0</td>
-              <td style="color:#d1d5db;">¥12,500</td>
-            </tr>
-          </tbody>
+          <tbody id="member-all-tbody"></tbody>
           <tfoot>
             <tr class="combined-row" id="combined-total-row">
               <td>選択合計</td>
-              <td id="comb-sales">¥2,950,000</td>
-              <td id="comb-existing">¥1,950,000</td>
-              <td id="comb-comm">¥259,000</td>
+              <td id="comb-sales">¥0</td>
+              <td id="comb-confirmed">¥0</td>
+              <td id="comb-prospect">¥0</td>
+              <td id="comb-comm">¥0</td>
             </tr>
           </tfoot>
         </table>
@@ -2649,7 +2552,7 @@
     const commEl = tr.querySelector('.deal-commission');
     if (commEl) commEl.textContent = comm > 0 ? '¥' + comm.toLocaleString() : '—';
     updateCatTotal(tr.closest('table'));
-    if (typeof updateAllGroupSummaries === 'function') updateAllGroupSummaries();
+    recalcSales();
   }
 
   // セクション単位の歩合率変更時に全行を再計算
@@ -2687,6 +2590,7 @@
     const tbody = table.querySelector('tbody');
     const tr = document.createElement('tr');
     tr.innerHTML = `
+      <td class="td-check"><button class="row-chk" onclick="toggleConfirm(this)">✓</button></td>
       <td class="deal-td"><input class="deal-name" type="text" placeholder="案件名を入力..."></td>
       <td class="deal-td">${dealTagSelectHTML('')}</td>
       <td class="deal-td"><input class="deal-amount" type="text" placeholder="—" oninput="calcRow(this)" style="width:120px;text-align:right;border:none;background:transparent;font-family:inherit;font-size:13px;padding:4px 6px;border-radius:3px;"></td>
@@ -2695,6 +2599,7 @@
     `;
     tbody.appendChild(tr);
     tr.querySelector('.deal-name').focus();
+    recalcSales();
   }
 
   // 行削除
@@ -2703,38 +2608,23 @@
     const table = tr.closest('table');
     tr.remove();
     if (table) updateCatTotal(table);
-    if (typeof updateAllGroupSummaries === 'function') updateAllGroupSummaries();
+    recalcSales();
   }
 
-  // 見込み/確定 切替
+  // 見込み/確定 切替（確定=チェック、未チェック=見込み）
   function toggleConfirm(btn) {
     btn.classList.toggle('checked');
+    recalcSales();
   }
 
   // メンバーフィルター切替
-  const MEMBER_DATA = {
-    yamada:  { sales: 1350000, existing: 950000,  comm: 133000 },
-    tanaka:  { sales: 1600000, existing: 1000000, comm: 126000 },
-    suzuki:  { sales: 250000,  existing: 0,        comm: 12500  },
-  };
   function toggleFilter(chip, memberId) {
     chip.classList.toggle('on');
     const check = chip.querySelector('.chip-check');
     check.style.opacity = chip.classList.contains('on') ? '1' : '0';
-    // テーブル行の見た目
     const row = document.querySelector(`[data-member-row="${memberId}"]`);
     if (row) row.classList.toggle('inactive-member', !chip.classList.contains('on'));
-    updateCombinedTotal();
-  }
-  function updateCombinedTotal() {
-    let s = 0, e = 0, c = 0;
-    document.querySelectorAll('.filter-chip.on').forEach(chip => {
-      const m = chip.getAttribute('data-member');
-      if (MEMBER_DATA[m]) { s += MEMBER_DATA[m].sales; e += MEMBER_DATA[m].existing; c += MEMBER_DATA[m].comm; }
-    });
-    document.getElementById('comb-sales').textContent     = '¥' + s.toLocaleString();
-    document.getElementById('comb-existing').textContent  = '¥' + e.toLocaleString();
-    document.getElementById('comb-comm').textContent      = '¥' + c.toLocaleString();
+    renderAllMemberTable();
   }
 
   // セクションタブ切替
@@ -2960,8 +2850,8 @@
 
   // ── 案件タグ（サービス種別）＆グループ別売上 ──
   const TAG_GROUPS = {
-    media:  { label: '受託メディア', color: '#6366f1', tags: ['SNS運用', 'コンサル'] },
     jisha:  { label: '自社メディア', color: '#10b981', tags: ['オプション', 'スポンサー'] },
+    media:  { label: '受託メディア', color: '#6366f1', tags: ['SNS運用', 'コンサル'] },
     other:  { label: 'その他',       color: '#0ea5e9', tags: ['サイト', 'LINE', 'DTP', '映像制作'] },
   };
   function groupOfTag(tag) {
@@ -3009,19 +2899,6 @@
         amtCell.before(td);
       });
     });
-    injectGroupPanels();
-    updateAllGroupSummaries();
-  }
-  function injectGroupPanels() {
-    document.querySelectorAll('.member-content .sales-right').forEach(panel => {
-      if (panel.querySelector('.sr-grp-block')) return;
-      const div = document.createElement('div');
-      div.className = 'sr-grp-block';
-      div.innerHTML = `<div class="sr-divider"></div>`
-        + `<div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">グループ別売上</div>`
-        + `<div class="sr-grp-body"></div>`;
-      panel.appendChild(div);
-    });
   }
   function yen(n) { return '¥' + (n || 0).toLocaleString(); }
   function computeGroups(scope) {
@@ -3049,20 +2926,130 @@
     }
     return html;
   }
-  function updateAllGroupSummaries() {
-    document.querySelectorAll('.member-content').forEach(mc => {
-      const body = mc.querySelector('.sr-grp-body');
-      if (body) body.innerHTML = renderGroupRows(computeGroups(mc));
-    });
-  }
   function onDealTagChange(sel) {
     sel.setAttribute('data-group', groupOfTag(sel.value));
-    updateAllGroupSummaries();
+    recalcSales();
+  }
+
+  // ── 確定列を全セクションに付与（新規タブは既に確定列あり） ──
+  function injectConfirmColumn() {
+    document.querySelectorAll('.deal-table').forEach(table => {
+      if (table.dataset.confirmed) return;
+      table.dataset.confirmed = '1';
+      const headRow = table.querySelector('thead tr');
+      // 既に確定列がある（新規案件）場合はスキップ
+      if (headRow.querySelector('.th-conf')) return;
+      const th = document.createElement('th');
+      th.className = 'th-conf';
+      th.textContent = '確定';
+      headRow.prepend(th);
+      const colCount = headRow.children.length;
+      table.querySelectorAll('tbody tr').forEach(tr => {
+        const empty = tr.querySelector('td[colspan]');
+        if (empty) { empty.setAttribute('colspan', colCount); return; }
+        const td = document.createElement('td');
+        td.className = 'td-check';
+        td.innerHTML = '<button class="row-chk" onclick="toggleConfirm(this)">✓</button>';
+        tr.prepend(td);
+      });
+    });
+  }
+
+  // ── メンバー別の集計（確定=チェック済 / 見込み=未チェック） ──
+  function computeMember(mc) {
+    let total = 0, confirmed = 0, commission = 0;
+    const cats = [];
+    mc.querySelectorAll('.cat-section').forEach(sec => {
+      const name = (sec.querySelector('.cat-name')?.textContent || '').trim().replace(/案件$|系$/, '');
+      const color = sec.querySelector('.cat-dot')?.style.background || '#9ca3af';
+      let aSum = 0, cSum = 0;
+      sec.querySelectorAll('tbody tr').forEach(tr => {
+        const amtEl = tr.querySelector('.deal-amount');
+        if (!amtEl) return;
+        const amt = parseFloat((amtEl.value || '0').replace(/,/g, '')) || 0;
+        const commEl = tr.querySelector('.deal-commission');
+        const comm = commEl && commEl.textContent !== '—' ? (parseFloat(commEl.textContent.replace(/[¥,]/g, '')) || 0) : 0;
+        aSum += amt; cSum += comm; total += amt; commission += comm;
+        const chk = tr.querySelector('.row-chk');
+        if (chk && chk.classList.contains('checked')) confirmed += amt;
+      });
+      cats.push({ name, color, amount: aSum, comm: cSum });
+    });
+    return { total, confirmed, prospective: total - confirmed, commission, cats };
+  }
+
+  function kpiHTML(label, val, color, sub) {
+    const cstyle = color ? ` style="color:${color};"` : '';
+    return `<div class="sr-kpi"><div class="sr-kpi-label">${label}</div>`
+      + `<div class="sr-kpi-val"${cstyle}>${val}</div>`
+      + (sub ? `<div class="sr-kpi-sub">${sub}</div>` : '') + `</div>`;
+  }
+
+  function renderMemberSummary(mc) {
+    const body = mc.querySelector('.sr-summary-body');
+    if (!body) return;
+    const m = computeMember(mc);
+    const avgRate = m.total > 0 ? (m.commission / m.total * 100) : 0;
+    let html = '';
+    html += kpiHTML('売上合計', yen(m.total), '', '');
+    html += kpiHTML('確定売上', yen(m.confirmed), '#059669', '確定チェック済みの案件');
+    html += kpiHTML('売上(見込み)', yen(m.prospective), '#d97706', '確定チェック前の案件');
+    html += kpiHTML('歩合合計', yen(m.commission), '#6366f1', `平均歩合率 ${avgRate.toFixed(1)}%`);
+    html += '<div class="sr-divider"></div><div class="sr-sec-label">カテゴリ別</div>';
+    m.cats.forEach(c => {
+      const right = c.amount > 0
+        ? `<span><span class="sr-cat-val">${yen(c.amount)}</span> <span class="sr-cat-comm">歩 ${yen(c.comm)}</span></span>`
+        : `<span><span class="sr-cat-val" style="color:#d1d5db;">—</span></span>`;
+      html += `<div class="sr-cat-row"><span class="sr-cat-name"><span class="sr-cat-dot" style="background:${c.color};"></span>${c.name}</span>${right}</div>`;
+    });
+    html += '<div class="sr-divider"></div><div class="sr-sec-label">グループ別売上</div>';
+    html += renderGroupRows(computeGroups(mc));
+    body.innerHTML = html;
+  }
+
+  // ── 全メンバー合計テーブル（選択チップ連動） ──
+  const SALES_MEMBERS = [
+    { key: 'yamada', id: 'member-yamada', name: '山田太郎' },
+    { key: 'tanaka', id: 'member-tanaka', name: '田中花子' },
+    { key: 'suzuki', id: 'member-suzuki', name: '鈴木一郎' },
+  ];
+  function renderAllMemberTable() {
+    const tbody = document.getElementById('member-all-tbody');
+    if (!tbody) return;
+    let cs = 0, cc = 0, cp = 0, cm = 0;
+    tbody.innerHTML = SALES_MEMBERS.map(mem => {
+      const mc = document.getElementById(mem.id);
+      const m = mc ? computeMember(mc) : { total: 0, confirmed: 0, prospective: 0, commission: 0 };
+      const chip = document.querySelector(`.filter-chip[data-member="${mem.key}"]`);
+      const on = chip ? chip.classList.contains('on') : true;
+      if (on) { cs += m.total; cc += m.confirmed; cp += m.prospective; cm += m.commission; }
+      const dim = on ? '' : ' class="inactive-member"';
+      const gray = on ? '' : ' style="color:#d1d5db;"';
+      const commColor = on ? ' style="color:#6366f1;"' : ' style="color:#d1d5db;"';
+      return `<tr data-member-row="${mem.key}"${dim}>`
+        + `<td${gray}>${mem.name}</td>`
+        + `<td${gray}>${yen(m.total)}</td>`
+        + `<td${gray}>${yen(m.confirmed)}</td>`
+        + `<td${gray}>${yen(m.prospective)}</td>`
+        + `<td${commColor}>${yen(m.commission)}</td></tr>`;
+    }).join('');
+    document.getElementById('comb-sales').textContent     = yen(cs);
+    document.getElementById('comb-confirmed').textContent = yen(cc);
+    document.getElementById('comb-prospect').textContent  = yen(cp);
+    document.getElementById('comb-comm').textContent      = yen(cm);
+  }
+
+  // ── 営業サマリー一括再計算 ──
+  function recalcSales() {
+    document.querySelectorAll('.member-content').forEach(mc => renderMemberSummary(mc));
+    renderAllMemberTable();
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     upgradeClientSelectors();
+    injectConfirmColumn();
     initDealTags();
+    recalcSales();
   });
 </script>
 
