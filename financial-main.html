@@ -1832,7 +1832,6 @@
             <tr>
               <th style="text-align:left; width:140px;">メンバー</th>
               <th>売上合計</th>
-              <th>確定売上</th>
               <th>売上(見込み)</th>
               <th>歩合合計</th>
             </tr>
@@ -1842,7 +1841,6 @@
             <tr class="combined-row" id="combined-total-row">
               <td>選択合計</td>
               <td id="comb-sales">¥0</td>
-              <td id="comb-confirmed">¥0</td>
               <td id="comb-prospect">¥0</td>
               <td id="comb-comm">¥0</td>
             </tr>
@@ -2991,9 +2989,8 @@
     const m = computeMember(mc);
     const avgRate = m.total > 0 ? (m.commission / m.total * 100) : 0;
     let html = '';
-    html += kpiHTML('売上合計', yen(m.total), '', '');
-    html += kpiHTML('確定売上', yen(m.confirmed), '#059669', '確定チェック済みの案件');
-    html += kpiHTML('売上(見込み)', yen(m.prospective), '#d97706', '確定チェック前の案件');
+    html += kpiHTML('売上合計', yen(m.confirmed), '#059669', '確定（チェック済み）のみ');
+    html += kpiHTML('売上(見込み)', yen(m.total), '#d97706', '未チェックの案件も含む全合計');
     html += kpiHTML('歩合合計', yen(m.commission), '#6366f1', `平均歩合率 ${avgRate.toFixed(1)}%`);
     html += '<div class="sr-divider"></div><div class="sr-sec-label">カテゴリ別</div>';
     m.cats.forEach(c => {
@@ -3016,27 +3013,26 @@
   function renderAllMemberTable() {
     const tbody = document.getElementById('member-all-tbody');
     if (!tbody) return;
-    let cs = 0, cc = 0, cp = 0, cm = 0;
+    let cs = 0, cp = 0, cm = 0;
     tbody.innerHTML = SALES_MEMBERS.map(mem => {
       const mc = document.getElementById(mem.id);
-      const m = mc ? computeMember(mc) : { total: 0, confirmed: 0, prospective: 0, commission: 0 };
+      const m = mc ? computeMember(mc) : { total: 0, confirmed: 0, commission: 0 };
       const chip = document.querySelector(`.filter-chip[data-member="${mem.key}"]`);
       const on = chip ? chip.classList.contains('on') : true;
-      if (on) { cs += m.total; cc += m.confirmed; cp += m.prospective; cm += m.commission; }
+      // 売上合計=確定(チェック済み) / 売上(見込み)=未チェック含む全合計
+      if (on) { cs += m.confirmed; cp += m.total; cm += m.commission; }
       const dim = on ? '' : ' class="inactive-member"';
       const gray = on ? '' : ' style="color:#d1d5db;"';
       const commColor = on ? ' style="color:#6366f1;"' : ' style="color:#d1d5db;"';
       return `<tr data-member-row="${mem.key}"${dim}>`
         + `<td${gray}>${mem.name}</td>`
-        + `<td${gray}>${yen(m.total)}</td>`
         + `<td${gray}>${yen(m.confirmed)}</td>`
-        + `<td${gray}>${yen(m.prospective)}</td>`
+        + `<td${gray}>${yen(m.total)}</td>`
         + `<td${commColor}>${yen(m.commission)}</td></tr>`;
     }).join('');
-    document.getElementById('comb-sales').textContent     = yen(cs);
-    document.getElementById('comb-confirmed').textContent = yen(cc);
-    document.getElementById('comb-prospect').textContent  = yen(cp);
-    document.getElementById('comb-comm').textContent      = yen(cm);
+    document.getElementById('comb-sales').textContent    = yen(cs);
+    document.getElementById('comb-prospect').textContent = yen(cp);
+    document.getElementById('comb-comm').textContent     = yen(cm);
   }
 
   // ── 営業サマリー一括再計算 ──
