@@ -1966,7 +1966,6 @@
             <div class="mlabel">2026年05月</div>
             <button class="mbtn">▶</button>
           </div>
-          <button class="btn-save">保存する</button>
         </div>
       </div>
 
@@ -2961,8 +2960,9 @@
 
   // ── 案件タグ（サービス種別）＆グループ別売上 ──
   const TAG_GROUPS = {
-    media: { label: '受託メディア', color: '#6366f1', tags: ['SNS運用', 'コンサル'] },
-    other: { label: 'その他',       color: '#0ea5e9', tags: ['サイト', 'LINE', 'DTP', '映像制作'] },
+    media:  { label: '受託メディア', color: '#6366f1', tags: ['SNS運用', 'コンサル'] },
+    jisha:  { label: '自社メディア', color: '#10b981', tags: ['オプション', 'スポンサー'] },
+    other:  { label: 'その他',       color: '#0ea5e9', tags: ['サイト', 'LINE', 'DTP', '映像制作'] },
   };
   function groupOfTag(tag) {
     for (const k in TAG_GROUPS) if (TAG_GROUPS[k].tags.includes(tag)) return k;
@@ -3025,7 +3025,8 @@
   }
   function yen(n) { return '¥' + (n || 0).toLocaleString(); }
   function computeGroups(scope) {
-    const res = { media: { total: 0, tags: {} }, other: { total: 0, tags: {} } };
+    const res = {};
+    for (const k in TAG_GROUPS) res[k] = { total: 0, tags: {} };
     scope.querySelectorAll('.deal-tag').forEach(sel => {
       const g = groupOfTag(sel.value);
       if (!g) return;
@@ -3038,7 +3039,7 @@
   }
   function renderGroupRows(r) {
     let html = '';
-    for (const k of ['media', 'other']) {
+    for (const k in TAG_GROUPS) {
       const g = TAG_GROUPS[k];
       html += `<div class="sr-grp-row"><span class="sr-grp-name"><span class="sr-cat-dot" style="background:${g.color};"></span>${g.label}</span><span class="sr-grp-val">${yen(r[k].total)}</span></div>`;
       for (const t of g.tags) {
