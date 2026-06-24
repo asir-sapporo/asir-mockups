@@ -39,6 +39,12 @@
   .kpi .k-value { font-size: 23px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; line-height: 1.1; }
   .kpi .k-sub { font-size: 11.5px; color: #94a3b8; margin-top: 5px; }
   .kpi .k-sub.up { color: #059669; font-weight: 700; }
+  /* ⓘ ツールチップ（何の数字が含まれるか） */
+  .info { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: #cbd5e1; color: #fff; font-size: 9px; font-weight: 700; font-style: normal; margin-left: 5px; cursor: help; vertical-align: middle; }
+  .info:hover { background: #6366f1; }
+  .info .tip { display: none; position: absolute; bottom: 150%; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 11px; font-weight: 500; line-height: 1.65; padding: 9px 12px; border-radius: 8px; width: 230px; z-index: 60; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.28); white-space: normal; }
+  .info:hover .tip { display: block; }
+  .info .tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #0f172a; }
 
   /* KPI 2段目（3枚・等幅） */
   .kpis.k3 { grid-template-columns: repeat(3, 1fr); margin-bottom: 22px; }
@@ -157,43 +163,43 @@
     <!-- KPI（事業区分） -->
     <div class="kpis">
       <div class="kpi" style="--c:#059669">
-        <div class="k-label">当月売上合計（税抜）</div>
+        <div class="k-label">当月売上合計（税抜）<span class="info">i<span class="tip">6カテゴリの総合計＝保守管理＋公式ライン＋コンサル＋SNS運用＋継続＋単発（税抜）。</span></span></div>
         <div class="k-value">¥2,785,000</div>
         <div class="k-sub up">▲ 前月比 +10.5%</div>
       </div>
       <div class="kpi" style="--c:#10b981">
-        <div class="k-label">自社メディア</div>
+        <div class="k-label">自社メディア<span class="info">i<span class="tip">自社メディア区分の売上。営業の「スポンサー」（継続列）＋「オプション」（単発列）。</span></span></div>
         <div class="k-value">¥350,000</div>
-        <div class="k-sub">スポンサー・オプション</div>
+        <div class="k-sub">スポンサー＋オプション</div>
       </div>
       <div class="kpi" style="--c:#6366f1">
-        <div class="k-label">受託メディア</div>
+        <div class="k-label">受託メディア<span class="info">i<span class="tip">受託メディア区分の売上。SNS運用（メディア月額）＋コンサル案件＋メディアの単発案件。</span></span></div>
         <div class="k-value">¥1,500,000</div>
-        <div class="k-sub">SNS運用・コンサル・単発</div>
+        <div class="k-sub">SNS運用＋コンサル＋メディア単発</div>
       </div>
       <div class="kpi" style="--c:#0ea5e9">
-        <div class="k-label">その他</div>
+        <div class="k-label">その他<span class="info">i<span class="tip">上記以外。WEB保守（保守管理＋公式ライン）＋営業の制作系（サイト/DTP/映像制作/LINE）＋その他収入（請求書）。</span></span></div>
         <div class="k-value">¥935,000</div>
-        <div class="k-sub">WEB保守・制作・請求書</div>
+        <div class="k-sub">WEB保守＋制作＋請求書</div>
       </div>
     </div>
 
     <!-- KPI 2段目（継続/スポット/社数） -->
     <div class="kpis k3">
       <div class="kpi" style="--c:#3b82f6">
-        <div class="k-label">継続収入（毎月見込める分）</div>
+        <div class="k-label">継続収入（毎月見込める分）<span class="info">i<span class="tip">毎月くり返し入る収入。保守管理＋公式ライン＋SNS運用（メディア月額）＋継続。</span></span></div>
         <div class="k-value">¥1,615,000</div>
-        <div class="k-sub">全体の 58%</div>
+        <div class="k-sub">保守管理＋公式ライン＋SNS運用＋継続・58%</div>
       </div>
       <div class="kpi" style="--c:#f59e0b">
-        <div class="k-label">スポット収入（都度の売上）</div>
+        <div class="k-label">スポット収入（都度の売上）<span class="info">i<span class="tip">その月だけ発生する収入。コンサル＋単発。</span></span></div>
         <div class="k-value">¥1,170,000</div>
-        <div class="k-sub">全体の 42%</div>
+        <div class="k-sub">コンサル＋単発・42%</div>
       </div>
       <div class="kpi" style="--c:#6366f1">
-        <div class="k-label">売上クライアント</div>
+        <div class="k-label">売上クライアント<span class="info">i<span class="tip">当月にいずれかのカテゴリで売上がある会社の数。</span></span></div>
         <div class="k-value">8 社</div>
-        <div class="k-sub">平均 ¥348,125 / 社</div>
+        <div class="k-sub">当月売上のある会社数・平均 ¥348,125</div>
       </div>
     </div>
 
