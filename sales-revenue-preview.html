@@ -8,32 +8,47 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; }
-  body { font-family: 'Noto Sans JP', -apple-system, sans-serif; color: #1e293b; background: #f1f5f9; margin: 0; padding: 32px 20px 80px; }
-  .wrap { max-width: 1100px; margin: 0 auto; }
+  body { font-family: 'Noto Sans JP', -apple-system, sans-serif; color: #1e293b; background: #f1f5f9; margin: 0; padding: 28px 20px 80px; }
+  .wrap { max-width: 1120px; margin: 0 auto; }
 
-  /* 注記バナー（モック用） */
-  .mock-banner { background: #1e293b; color: #fff; border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; font-size: 13px; line-height: 1.7; }
+  .mock-banner { background: #1e293b; color: #fff; border-radius: 10px; padding: 14px 18px; margin-bottom: 18px; font-size: 13px; line-height: 1.7; }
   .mock-banner b { color: #fde68a; }
 
-  /* 画面ヘッダー（FinanceScreenHeader 相当） */
+  /* 上部タブ（売上 / メディア更新情報） */
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid #e2e8f0; margin-bottom: 22px; }
+  .tab { border: none; background: none; font-family: inherit; font-size: 14px; font-weight: 700; color: #94a3b8; padding: 11px 18px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .tab:hover { color: #475569; }
+  .tab.on { color: #4338ca; border-bottom-color: #4f46e5; }
+  .tab .ro { font-size: 10px; font-weight: 700; color: #b45309; background: #fef3c7; border-radius: 999px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
+  .pane { display: none; }
+  .pane.on { display: block; }
+
+  /* 画面ヘッダー */
   .scr-head { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
-  .scr-title { font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.01em; }
+  .scr-title { font-size: 19px; font-weight: 800; color: #0f172a; }
   .month-nav { display: flex; align-items: center; gap: 6px; margin-left: auto; }
   .month-btn { width: 32px; height: 32px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 15px; color: #475569; display: flex; align-items: center; justify-content: center; }
   .month-btn:hover { border-color: #c7d2fe; color: #4f46e5; }
   .month-label { font-size: 14px; font-weight: 700; color: #334155; min-width: 92px; text-align: center; }
 
   /* KPIカード */
-  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
-  .kpi { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); position: relative; overflow: hidden; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 12px; }
+  .kpi { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px 17px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); position: relative; overflow: hidden; }
   .kpi::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c, #4f46e5); }
-  .kpi .k-label { font-size: 11.5px; font-weight: 600; color: #64748b; margin-bottom: 8px; }
-  .kpi .k-value { font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; line-height: 1.1; }
-  .kpi .k-sub { font-size: 11.5px; color: #94a3b8; margin-top: 6px; }
+  .kpi .k-label { font-size: 11.5px; font-weight: 600; color: #64748b; margin-bottom: 7px; }
+  .kpi .k-value { font-size: 23px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; line-height: 1.1; }
+  .kpi .k-sub { font-size: 11.5px; color: #94a3b8; margin-top: 5px; }
   .kpi .k-sub.up { color: #059669; font-weight: 700; }
 
+  /* KPIチップ（2段目） */
+  .chips { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  .chip { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 9px 15px; display: flex; align-items: baseline; gap: 9px; }
+  .chip .c-l { font-size: 11.5px; color: #64748b; font-weight: 600; }
+  .chip .c-v { font-size: 16px; font-weight: 800; color: #0f172a; }
+  .chip .c-p { font-size: 11px; color: #94a3b8; }
+
   /* 操作行 */
-  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
   .search { padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; min-width: 240px; background: #fff; }
   .search:focus { border-color: #a5b4fc; }
   .seg { display: inline-flex; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; }
@@ -41,38 +56,36 @@
   .seg button.on { background: #eef2ff; color: #4338ca; }
   .count { font-size: 12px; color: #94a3b8; margin-left: auto; }
 
-  /* マトリクス表 */
+  /* テーブル共通 */
   .panel { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th { padding: 11px 14px; font-size: 11px; font-weight: 700; color: #94a3b8; background: #f8fafc; border-bottom: 1px solid #e5e7eb; text-align: right; white-space: nowrap; }
+  thead th { padding: 9px 12px; font-size: 11px; font-weight: 700; color: #475569; background: #f8fafc; border-bottom: 1px solid #e5e7eb; text-align: right; white-space: nowrap; }
   thead th.l { text-align: left; }
   thead th .cat-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
-  tbody td { padding: 11px 14px; border-bottom: 1px solid #f1f5f9; text-align: right; color: #334155; white-space: nowrap; }
+  thead th .hcount { display: block; font-size: 10px; font-weight: 600; color: #94a3b8; margin-top: 2px; }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; color: #334155; white-space: nowrap; }
   tbody td.l { text-align: left; font-weight: 600; color: #0f172a; }
   tbody tr:hover td { background: #fafbff; }
   td.zero { color: #cbd5e1; }
   td.total-col { font-weight: 700; color: #0f172a; background: #fcfcfd; }
   tbody tr:hover td.total-col { background: #f5f6ff; }
-  tfoot td { padding: 13px 14px; border-top: 2px solid #e5e7eb; background: #f8fafc; font-weight: 800; color: #0f172a; text-align: right; }
+  tfoot td { padding: 12px; border-top: 2px solid #e5e7eb; background: #f8fafc; font-weight: 800; color: #0f172a; text-align: right; }
   tfoot td.l { text-align: left; }
   tfoot td.grand { color: #059669; font-size: 15px; }
 
-  /* 内訳が複数あるセル: クリック可能＋件数バッジ */
   td.has-detail { cursor: pointer; position: relative; }
   td.has-detail .val { border-bottom: 1px dashed #cbd5e1; }
   td.has-detail:hover { background: #eef2ff !important; }
   td.has-detail:hover .val { border-bottom-color: #6366f1; }
   .cnt { display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #4338ca; background: #e0e7ff; border-radius: 999px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
 
-  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 14px 2px 0; font-size: 11.5px; color: #64748b; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 14px 2px 0; font-size: 11.5px; color: #64748b; }
   .legend span { display: inline-flex; align-items: center; gap: 5px; }
   .legend i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
-  /* セクション見出し */
-  h2.sec { font-size: 15px; font-weight: 800; color: #0f172a; margin: 38px 0 12px; display: flex; align-items: center; gap: 8px; }
+  h2.sec { font-size: 15px; font-weight: 800; color: #0f172a; margin: 34px 0 12px; display: flex; align-items: center; gap: 8px; }
   h2.sec::before { content: ''; width: 4px; height: 18px; background: #4f46e5; border-radius: 2px; }
 
-  /* マッピング表 */
   .map-table { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
   .map-table table { font-size: 12.5px; }
   .map-table thead th { text-align: left; }
@@ -81,21 +94,18 @@
   .map-table .risk { color: #b45309; }
   .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #4338ca; }
 
-  /* Q&A */
   .qa { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 18px 20px; }
   .qa ol { margin: 0; padding-left: 20px; }
   .qa li { font-size: 13px; line-height: 1.85; color: #422006; margin-bottom: 10px; }
   .qa li b { color: #92400e; }
   .qa .opt { color: #475569; font-weight: 600; }
 
-  /* 内訳モーダル（クリック時の例） */
   .demo-note { font-size: 12px; color: #64748b; margin: 10px 2px 14px; }
   .modal-demo { max-width: 460px; background: #fff; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.18); border: 1px solid #e5e7eb; overflow: hidden; }
   .modal-demo .m-head { display: flex; align-items: center; gap: 8px; padding: 14px 18px; border-bottom: 1px solid #f1f5f9; }
   .modal-demo .m-title { font-size: 15px; font-weight: 800; color: #0f172a; flex: 1; }
   .modal-demo .m-tag { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: #fef3c7; color: #b45309; }
   .modal-demo .m-close { color: #cbd5e1; font-size: 16px; }
-  .modal-demo .m-body { padding: 6px 0; }
   .modal-demo .m-row { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-bottom: 1px solid #f8fafc; }
   .modal-demo .m-row .m-name { flex: 1; font-size: 13px; color: #334155; }
   .modal-demo .m-row .m-date { font-size: 11px; color: #94a3b8; }
@@ -103,261 +113,343 @@
   .modal-demo .m-foot { display: flex; align-items: center; padding: 12px 18px; background: #f8fafc; border-top: 1px solid #f1f5f9; }
   .modal-demo .m-foot .m-name { flex: 1; font-size: 12px; font-weight: 700; color: #64748b; }
   .modal-demo .m-foot .m-amt { font-size: 16px; font-weight: 800; color: #059669; }
+
+  /* メディア更新情報（閲覧専用） */
+  .ro-note { display: flex; align-items: center; gap: 8px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 12.5px; color: #92400e; }
+  .sum5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 18px; }
+  .sumcard { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 13px 15px; border-top: 3px solid var(--c, #94a3b8); }
+  .sumcard .s-l { font-size: 11.5px; color: #64748b; font-weight: 600; margin-bottom: 6px; }
+  .sumcard .s-v { font-size: 18px; font-weight: 800; color: #0f172a; }
+  .rtabs { display: flex; gap: 6px; margin-bottom: 0; flex-wrap: wrap; }
+  .rtab { border: 1px solid #e2e8f0; background: #fff; border-radius: 8px 8px 0 0; font-family: inherit; font-size: 12.5px; font-weight: 700; color: #64748b; padding: 8px 14px; cursor: pointer; }
+  .rtab .b { font-size: 10px; background: #e2e8f0; color: #475569; border-radius: 999px; padding: 1px 7px; margin-left: 6px; }
+  .rtab.on { color: #fff; background: #4f46e5; border-color: #4f46e5; }
+  .rtab.on .b { background: rgba(255,255,255,0.25); color: #fff; }
+  .badge-st { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+  .st-renewed { background: #dcfce7; color: #166534; }
+  .st-skip { background: #fef9c3; color: #854d0e; }
+  .st-end { background: #fee2e2; color: #991b1b; }
+  .st-pending { background: #f1f5f9; color: #475569; }
+  .team-chip { display: inline-block; font-size: 11px; background: #eef2ff; color: #4338ca; border-radius: 6px; padding: 2px 8px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <div class="mock-banner">
-    📋 <b>これはモックアップ（静的HTML）です</b>。実データは未接続・数字はすべてダミーです。<br />
-    まず <b>レイアウト・KPI・内訳の見せ方</b> を確認 → その後、下部の「各列の数字の出どころ（提案）」と「確認したいポイント」で <b>どの数字を連携するか</b> を決めます。
+    📋 <b>これはモックアップ（静的HTML）です</b>。実データは未接続・数字はすべてダミーです。上のタブで <b>「売上」</b> と <b>「メディア更新情報（閲覧専用）」</b> を切り替えられます。
   </div>
 
-  <!-- 画面ヘッダー -->
-  <div class="scr-head">
-    <span class="scr-title">売上（クライアント別）</span>
-    <div class="month-nav">
-      <button class="month-btn">‹</button>
-      <span class="month-label">2026年6月</span>
-      <button class="month-btn">›</button>
-    </div>
+  <!-- 上部タブ -->
+  <div class="tabs">
+    <button class="tab on" data-pane="sales">売上</button>
+    <button class="tab" data-pane="renewal">メディア更新情報<span class="ro">閲覧専用</span></button>
   </div>
 
-  <!-- KPIカード -->
-  <div class="kpis">
-    <div class="kpi" style="--c:#059669">
-      <div class="k-label">当月売上合計（税抜）</div>
-      <div class="k-value">¥2,685,000</div>
-      <div class="k-sub up">▲ 前月比 +12.4%</div>
-    </div>
-    <div class="kpi" style="--c:#3b82f6">
-      <div class="k-label">継続収入（保守管理＋公式ライン＋継続）</div>
-      <div class="k-value">¥1,595,000</div>
-      <div class="k-sub">毎月見込める分・59%</div>
-    </div>
-    <div class="kpi" style="--c:#f59e0b">
-      <div class="k-label">スポット収入（コンサル＋単発）</div>
-      <div class="k-value">¥1,090,000</div>
-      <div class="k-sub">都度の売上・41%</div>
-    </div>
-    <div class="kpi" style="--c:#6366f1">
-      <div class="k-label">売上のあるクライアント</div>
-      <div class="k-value">7 社</div>
-      <div class="k-sub">平均 ¥383,571 / 社</div>
-    </div>
-  </div>
+  <!-- ============ 売上ペイン ============ -->
+  <div class="pane on" id="pane-sales">
 
-  <!-- 今年度の売上推移グラフ -->
-  <h2 class="sec" style="margin-top:8px;">今年度の売上推移（2026年度・4月〜翌3月）</h2>
-  <div class="panel" style="padding:16px 16px 8px;">
-    <svg id="yearChart" viewBox="0 0 1000 250" width="100%" style="display:block;"></svg>
-    <div class="legend" style="margin:4px 6px 8px; justify-content:center;">
-      <span><i style="background:#3b82f6"></i>保守管理</span>
-      <span><i style="background:#0ea5e9"></i>公式ライン</span>
-      <span><i style="background:#6366f1"></i>コンサル</span>
-      <span><i style="background:#10b981"></i>継続</span>
+    <div class="scr-head">
+      <span class="scr-title">売上（クライアント別）</span>
+      <div class="month-nav">
+        <button class="month-btn">‹</button>
+        <span class="month-label">2026年6月</span>
+        <button class="month-btn">›</button>
+      </div>
+    </div>
+
+    <!-- KPI（事業区分） -->
+    <div class="kpis">
+      <div class="kpi" style="--c:#059669">
+        <div class="k-label">当月売上合計（税抜）</div>
+        <div class="k-value">¥2,785,000</div>
+        <div class="k-sub up">▲ 前月比 +10.5%</div>
+      </div>
+      <div class="kpi" style="--c:#10b981">
+        <div class="k-label">自社メディア</div>
+        <div class="k-value">¥350,000</div>
+        <div class="k-sub">スポンサー・オプション</div>
+      </div>
+      <div class="kpi" style="--c:#6366f1">
+        <div class="k-label">受託メディア</div>
+        <div class="k-value">¥1,500,000</div>
+        <div class="k-sub">SNS運用・コンサル・単発</div>
+      </div>
+      <div class="kpi" style="--c:#0ea5e9">
+        <div class="k-label">その他</div>
+        <div class="k-value">¥935,000</div>
+        <div class="k-sub">WEB保守・制作・請求書</div>
+      </div>
+    </div>
+
+    <!-- KPIチップ（継続/スポット/社数） -->
+    <div class="chips">
+      <div class="chip"><span class="c-l">継続収入</span><span class="c-v">¥1,615,000</span><span class="c-p">58%</span></div>
+      <div class="chip"><span class="c-l">スポット収入</span><span class="c-v">¥1,170,000</span><span class="c-p">42%</span></div>
+      <div class="chip"><span class="c-l">売上クライアント</span><span class="c-v">8 社</span><span class="c-p">平均 ¥348,125</span></div>
+    </div>
+
+    <!-- 今年度の売上推移グラフ -->
+    <h2 class="sec">今年度の売上推移（2026年度・4月〜翌3月）</h2>
+    <div class="panel" style="padding:16px 16px 8px;">
+      <svg id="yearChart" viewBox="0 0 1000 250" width="100%" style="display:block;"></svg>
+      <div class="legend" style="margin:4px 6px 8px; justify-content:center;" id="chartLegend"></div>
+    </div>
+
+    <!-- 当月の内訳（マトリクス） -->
+    <h2 class="sec">当月の内訳（クライアント別）</h2>
+    <div class="toolbar">
+      <input class="search" placeholder="🔍 クライアント検索..." />
+      <div class="seg"><button class="on">税抜</button><button>税込</button></div>
+      <span class="count">8 社</span>
+    </div>
+
+    <div class="panel">
+      <table>
+        <thead>
+          <tr>
+            <th class="l">クライアント</th>
+            <th><span class="cat-dot" style="background:#3b82f6"></span>保守管理<span class="hcount">4社</span></th>
+            <th><span class="cat-dot" style="background:#0ea5e9"></span>公式ライン<span class="hcount">3社</span></th>
+            <th><span class="cat-dot" style="background:#6366f1"></span>コンサル<span class="hcount">2社</span></th>
+            <th><span class="cat-dot" style="background:#10b981"></span>SNS運用<span class="hcount">4社</span></th>
+            <th><span class="cat-dot" style="background:#84cc16"></span>継続<span class="hcount">1社</span></th>
+            <th><span class="cat-dot" style="background:#f59e0b"></span>単発<span class="hcount">4社</span></th>
+            <th>合計</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="l">株式会社アルファ</td>
+            <td>¥120,000</td><td>¥50,000</td><td class="zero">—</td>
+            <td class="has-detail"><span class="val">¥300,000</span><span class="cnt">×2</span></td>
+            <td class="zero">—</td><td class="zero">—</td>
+            <td class="total-col">¥470,000</td>
+          </tr>
+          <tr>
+            <td class="l">ベータ商事</td>
+            <td>¥80,000</td><td class="zero">—</td><td>¥200,000</td>
+            <td>¥150,000</td><td class="zero">—</td><td class="zero">—</td>
+            <td class="total-col">¥430,000</td>
+          </tr>
+          <tr>
+            <td class="l">ガンマ製作所</td>
+            <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+            <td>¥250,000</td><td class="zero">—</td>
+            <td class="has-detail"><span class="val">¥180,000</span><span class="cnt">×3</span></td>
+            <td class="total-col">¥430,000</td>
+          </tr>
+          <tr>
+            <td class="l">デルタ広告</td>
+            <td>¥150,000</td><td>¥30,000</td><td class="zero">—</td>
+            <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+            <td class="total-col">¥180,000</td>
+          </tr>
+          <tr>
+            <td class="l">イプシロン株式会社</td>
+            <td class="zero">—</td><td>¥60,000</td><td>¥120,000</td>
+            <td class="zero">—</td><td class="zero">—</td>
+            <td class="has-detail"><span class="val">¥90,000</span><span class="cnt">×2</span></td>
+            <td class="total-col">¥270,000</td>
+          </tr>
+          <tr>
+            <td class="l">ゼータフーズ</td>
+            <td>¥45,000</td><td class="zero">—</td><td class="zero">—</td>
+            <td>¥180,000</td><td class="zero">—</td><td class="zero">—</td>
+            <td class="total-col">¥225,000</td>
+          </tr>
+          <tr>
+            <td class="l">イータ不動産</td>
+            <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+            <td class="zero">—</td><td class="zero">—</td><td>¥500,000</td>
+            <td class="total-col">¥500,000</td>
+          </tr>
+          <tr>
+            <td class="l">シータ企画</td>
+            <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+            <td class="zero">—</td><td>¥200,000</td><td>¥80,000</td>
+            <td class="total-col">¥280,000</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td class="l">合計</td>
+            <td>¥395,000</td><td>¥140,000</td><td>¥320,000</td>
+            <td>¥880,000</td><td>¥200,000</td><td>¥850,000</td>
+            <td class="grand">¥2,785,000</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:#3b82f6"></i>保守管理＝WEB保守(LINE以外)</span>
+      <span><i style="background:#0ea5e9"></i>公式ライン＝WEB保守(LINE)</span>
+      <span><i style="background:#6366f1"></i>コンサル＝営業タグ</span>
+      <span><i style="background:#10b981"></i>SNS運用＝メディア月額</span>
+      <span><i style="background:#84cc16"></i>継続＝スポンサー等</span>
       <span><i style="background:#f59e0b"></i>単発</span>
+      <span style="color:#4338ca"><b>×2</b>＝内訳複数(クリックで内訳)</span>
     </div>
-  </div>
 
-  <!-- 操作行 -->
-  <h2 class="sec">当月の内訳（クライアント別）</h2>
-  <div class="toolbar">
-    <input class="search" placeholder="🔍 クライアント検索..." />
-    <div class="seg">
-      <button class="on">税抜</button>
-      <button>税込</button>
-    </div>
-    <span class="count">7 社</span>
-  </div>
-
-  <!-- マトリクス -->
-  <div class="panel">
-    <table>
-      <thead>
-        <tr>
-          <th class="l">クライアント</th>
-          <th><span class="cat-dot" style="background:#3b82f6"></span>保守管理</th>
-          <th><span class="cat-dot" style="background:#0ea5e9"></span>公式ライン</th>
-          <th><span class="cat-dot" style="background:#6366f1"></span>コンサル</th>
-          <th><span class="cat-dot" style="background:#10b981"></span>継続</th>
-          <th><span class="cat-dot" style="background:#f59e0b"></span>単発</th>
-          <th>合計</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="l">株式会社アルファ</td>
-          <td>¥120,000</td>
-          <td>¥50,000</td>
-          <td class="zero">—</td>
-          <td class="has-detail"><span class="val">¥300,000</span><span class="cnt">×2</span></td>
-          <td class="zero">—</td>
-          <td class="total-col">¥470,000</td>
-        </tr>
-        <tr>
-          <td class="l">ベータ商事</td>
-          <td>¥80,000</td>
-          <td class="zero">—</td>
-          <td>¥200,000</td>
-          <td>¥150,000</td>
-          <td class="zero">—</td>
-          <td class="total-col">¥430,000</td>
-        </tr>
-        <tr>
-          <td class="l">ガンマ製作所</td>
-          <td class="zero">—</td>
-          <td class="zero">—</td>
-          <td class="zero">—</td>
-          <td>¥250,000</td>
-          <td class="has-detail"><span class="val">¥180,000</span><span class="cnt">×3</span></td>
-          <td class="total-col">¥430,000</td>
-        </tr>
-        <tr>
-          <td class="l">デルタ広告</td>
-          <td>¥150,000</td>
-          <td>¥30,000</td>
-          <td class="zero">—</td>
-          <td class="zero">—</td>
-          <td class="zero">—</td>
-          <td class="total-col">¥180,000</td>
-        </tr>
-        <tr>
-          <td class="l">イプシロン株式会社</td>
-          <td class="zero">—</td>
-          <td>¥60,000</td>
-          <td>¥120,000</td>
-          <td class="zero">—</td>
-          <td class="has-detail"><span class="val">¥90,000</span><span class="cnt">×2</span></td>
-          <td class="total-col">¥270,000</td>
-        </tr>
-        <tr>
-          <td class="l">ゼータフーズ</td>
-          <td>¥45,000</td>
-          <td class="zero">—</td>
-          <td class="zero">—</td>
-          <td>¥180,000</td>
-          <td class="zero">—</td>
-          <td class="total-col">¥225,000</td>
-        </tr>
-        <tr>
-          <td class="l">イータ不動産</td>
-          <td class="zero">—</td>
-          <td class="zero">—</td>
-          <td class="zero">—</td>
-          <td class="zero">—</td>
-          <td>¥500,000</td>
-          <td class="total-col">¥500,000</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td class="l">合計</td>
-          <td>¥395,000</td>
-          <td>¥140,000</td>
-          <td>¥320,000</td>
-          <td>¥1,060,000</td>
-          <td>¥770,000</td>
-          <td class="grand">¥2,685,000</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-
-  <div class="legend">
-    <span><i style="background:#3b82f6"></i>保守管理＝WEB保守</span>
-    <span><i style="background:#0ea5e9"></i>公式ライン＝LINE案件</span>
-    <span><i style="background:#6366f1"></i>コンサル＝コンサル案件</span>
-    <span><i style="background:#10b981"></i>継続＝メディア月額</span>
-    <span><i style="background:#f59e0b"></i>単発＝単発案件</span>
-    <span style="color:#4338ca"><b>×2</b> ＝ 内訳が複数（クリックで内訳）</span>
-  </div>
-
-  <!-- 内訳モーダルの例 -->
-  <h2 class="sec">内訳が複数あるセルの見せ方（おすすめ：クリック→モーダル）</h2>
-  <p class="demo-note">「×2」「×3」が付いたセル（破線つきの金額）をクリックすると、↓のような内訳モーダルが開くイメージです。ホバーでの“ちょい見”も補助で付けられます（正は常にモーダル）。</p>
-  <div class="modal-demo">
-    <div class="m-head">
-      <span class="m-title">ガンマ製作所</span>
-      <span class="m-tag">単発</span>
-      <span class="m-close">✕</span>
-    </div>
-    <div class="m-body">
+    <!-- 内訳モーダル例 -->
+    <h2 class="sec">内訳が複数あるセルの見せ方（おすすめ：クリック→モーダル）</h2>
+    <p class="demo-note">「×2」「×3」が付いたセル（破線つきの金額）をクリックすると、↓のような内訳モーダルが開くイメージです。</p>
+    <div class="modal-demo">
+      <div class="m-head"><span class="m-title">ガンマ製作所</span><span class="m-tag">単発</span><span class="m-close">✕</span></div>
       <div class="m-row"><span class="m-name">プロモ動画 制作<br /><span class="m-date">請求 2026-06</span></span><span class="m-amt">¥80,000</span></div>
       <div class="m-row"><span class="m-name">撮影 追加カット<br /><span class="m-date">請求 2026-06</span></span><span class="m-amt">¥60,000</span></div>
       <div class="m-row"><span class="m-name">サムネイル 一括<br /><span class="m-date">請求 2026-06</span></span><span class="m-amt">¥40,000</span></div>
+      <div class="m-foot"><span class="m-name">単発 合計</span><span class="m-amt">¥180,000</span></div>
     </div>
-    <div class="m-foot"><span class="m-name">単発 合計</span><span class="m-amt">¥180,000</span></div>
+
+    <!-- マッピング案 -->
+    <h2 class="sec">各列の数字の出どころ（提案 / 要確認）</h2>
+    <div class="map-table">
+      <table>
+        <thead><tr><th style="width:120px">列</th><th style="width:310px">提案する出どころ</th><th>備考・確認したい点</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name">保守管理<br /><span class="pill" style="background:#dcfce7;color:#166534">継続</span></td><td>WEB保守の内訳のうち <b>タグ≠LINE</b>（月払い毎月／年払い請求月のみ）</td><td>WEBクライアントの保守料（LINE以外）。</td></tr>
+          <tr><td class="col-name">公式ライン<br /><span class="pill" style="background:#dcfce7;color:#166534">継続</span></td><td>WEB保守の内訳のうち <b>タグ＝<span class="pill">LINE</span></b></td><td>公式LINE運用の保守。WEB保守を「LINE / それ以外」で2列に分割。</td></tr>
+          <tr><td class="col-name">コンサル<br /><span class="pill" style="background:#fef3c7;color:#b45309">スポット</span></td><td>営業確定案件 タグ＝<span class="pill">コンサル</span></td><td class="risk">※ 継続/スポットどちら扱い？（今はスポット）</td></tr>
+          <tr><td class="col-name">SNS運用<br /><span class="pill" style="background:#dcfce7;color:#166534">継続</span></td><td>メディア月額（realizedMonthlyFee＝継続課金）</td><td class="risk">⚠️ 新設。営業タグ「SNS運用」は二重計上回避で除外（要確認）。</td></tr>
+          <tr><td class="col-name">継続<br /><span class="pill" style="background:#dcfce7;color:#166534">継続</span></td><td>営業確定案件 タグ＝<span class="pill">スポンサー</span>（自社メディア）等の継続分</td><td class="risk">※ SNS運用を別列にしたので、この列は「スポンサー等」になる想定。中身を確認したい。</td></tr>
+          <tr><td class="col-name">単発<br /><span class="pill" style="background:#fef3c7;color:#b45309">スポット</span></td><td>メディア単発 ＋ 営業 タグ＝<span class="pill">LINE</span>(制作費)/<span class="pill">オプション</span> ＋ その他収入（請求書）</td><td class="risk">※ 営業の サイト/DTP/映像制作 も単発でよい？</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Q&A -->
+    <h2 class="sec">確認したいポイント（決まり次第、数字を連携します）</h2>
+    <div class="qa">
+      <ol>
+        <li><b>SNS運用 列と 継続 列の切り分け</b>：SNS運用＝メディア月額、継続＝スポンサー等、でOK？（継続列に入れたい中身を教えてください）</li>
+        <li><b>営業タグ「SNS運用」の扱い</b>：メディア月額を正とし二重計上回避で除外でOK？</li>
+        <li><b>コンサルの位置づけ</b>：継続収入／スポット収入どちらに数える？</li>
+        <li><b>営業の制作系タグ</b>：「サイト」「DTP」「映像制作」も単発に入れてOK？</li>
+        <li><b>事業区分KPI</b>：自社/受託/その他の3区分の分け方はこの理解でOK？（自社=スポンサー/オプション、受託=SNS運用/コンサル/メディア単発、その他=WEB保守/制作/請求書）</li>
+        <li><b>表示の細部</b>：税抜/税込どちら基準？ ／ 並びは合計が大きい順？ ／ 全列0円の社は隠す？</li>
+      </ol>
+    </div>
+
   </div>
 
-  <!-- マッピング案 -->
-  <h2 class="sec">各列の数字の出どころ（提案 / 要確認）</h2>
-  <div class="map-table">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:110px">列</th>
-          <th style="width:300px">提案する出どころ</th>
-          <th>備考・確認したい点</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="col-name">保守管理<br /><span class="pill" style="background:#dcfce7;color:#166534">継続収入</span></td>
-          <td>WEB保守の内訳のうち <b>タグ≠LINE</b>（月払いは毎月／年払いは請求月のみ）</td>
-          <td>WEBクライアントの保守料（LINE以外）。先日の「年払いは請求月だけ計上」と同じ。</td>
-        </tr>
-        <tr>
-          <td class="col-name">公式ライン<br /><span class="pill" style="background:#dcfce7;color:#166534">継続収入</span></td>
-          <td>WEB保守の内訳のうち <b>タグ＝<span class="pill">LINE</span></b></td>
-          <td>公式LINE運用の保守。WEB保守を「LINE / それ以外」で2列に分ける形。</td>
-        </tr>
-        <tr>
-          <td class="col-name">コンサル<br /><span class="pill" style="background:#fef3c7;color:#b45309">スポット</span></td>
-          <td>営業確定案件 タグ＝<span class="pill">コンサル</span></td>
-          <td class="risk">※ コンサルは継続/スポットどちら扱い？（今はスポット）</td>
-        </tr>
-        <tr>
-          <td class="col-name">継続<br /><span class="pill" style="background:#dcfce7;color:#166534">継続収入</span></td>
-          <td>メディア月額（realizedMonthlyFee）＋ 営業確定案件 タグ＝<span class="pill">スポンサー</span>（自社メディア）</td>
-          <td class="risk">⚠️ メディア月額と営業タグ「SNS運用」の二重計上 → メディア月額を正・SNS運用は除外（要確認）。</td>
-        </tr>
-        <tr>
-          <td class="col-name">単発<br /><span class="pill" style="background:#fef3c7;color:#b45309">スポット</span></td>
-          <td>メディア単発（当月請求）＋ 営業 タグ＝<span class="pill">LINE</span>(制作費)/<span class="pill">オプション</span> ＋ その他収入（請求書invoice反映分）</td>
-          <td class="risk">※ 営業の <span class="pill">サイト</span>/<span class="pill">DTP</span>/<span class="pill">映像制作</span> も制作費＝単発でよい？</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- ============ メディア更新情報ペイン（閲覧専用） ============ -->
+  <div class="pane" id="pane-renewal">
 
-  <!-- Q&A -->
-  <h2 class="sec">確認したいポイント（決まり次第、数字を連携します）</h2>
-  <div class="qa">
-    <ol>
-      <li><b>グラフ</b>：今年度（4月〜翌3月）の月別・カテゴリ積み上げ棒でOK？ 年度の起点は<b>4月</b>でいい？（会計年度が違えば教えてください）</li>
-      <li><b>「SNS運用」タグの扱い</b>：継続はメディア月額を正とし、営業タグ「SNS運用」は<b>二重計上回避のため除外</b>でOK？</li>
-      <li><b>コンサルの位置づけ</b>：継続収入とスポット収入、どちらに数える？（今のモックは<b>スポット</b>）</li>
-      <li><b>営業の制作系タグ</b>：「サイト」「DTP」「映像制作」も制作費として<b>単発</b>に入れてOK？</li>
-      <li><b>内訳の見せ方</b>：クリック→モーダルで確定でOK？（ホバー“ちょい見”を足すかも選べます）</li>
-      <li><b>KPIカードの中身</b>：当月合計／継続収入／スポット収入／クライアント数の4枚でOK？ 他に見たい指標は？</li>
-      <li><b>表示の細部</b>：金額は税抜/税込どちら基準？ ／ 並びは合計が大きい順でOK？ ／ 全列0円の社は隠す？</li>
-    </ol>
+    <div class="scr-head">
+      <span class="scr-title">📢 メディア別更新情報</span>
+      <div class="month-nav">
+        <button class="month-btn">‹</button>
+        <span class="month-label">2026年7月（翌月）</span>
+        <button class="month-btn">›</button>
+      </div>
+    </div>
+
+    <div class="ro-note">🔒 <b>閲覧専用</b>：この画面は財務側から更新状況を確認するためのものです。操作（更新/更新不可/終了）は「メディア別更新情報」ページで行います。</div>
+
+    <!-- サマリー5枚（月額合計） -->
+    <div class="sum5">
+      <div class="sumcard" style="--c:#94a3b8"><div class="s-l">未確認</div><div class="s-v">¥480,000</div></div>
+      <div class="sumcard" style="--c:#0284c7"><div class="s-l">見込み</div><div class="s-v">¥220,000</div></div>
+      <div class="sumcard" style="--c:#16a34a"><div class="s-l">更新</div><div class="s-v">¥1,180,000</div></div>
+      <div class="sumcard" style="--c:#ca8a04"><div class="s-l">更新不可</div><div class="s-v">¥150,000</div></div>
+      <div class="sumcard" style="--c:#dc2626"><div class="s-l">終了予定</div><div class="s-v">¥120,000</div></div>
+    </div>
+
+    <!-- ステータス別タブ -->
+    <div class="rtabs">
+      <button class="rtab" data-rtab="rt-pending">未確認<span class="b">2</span></button>
+      <button class="rtab" data-rtab="rt-prospect">見込み<span class="b">1</span></button>
+      <button class="rtab on" data-rtab="rt-renewed">更新<span class="b">3</span></button>
+      <button class="rtab" data-rtab="rt-skip">更新不可<span class="b">1</span></button>
+      <button class="rtab" data-rtab="rt-end">終了予定<span class="b">1</span></button>
+    </div>
+
+    <div class="panel" style="border-top-left-radius:0;">
+      <!-- 更新タブ -->
+      <table class="rtable on" id="rt-renewed">
+        <thead><tr><th class="l">ステータス</th><th class="l">メディア</th><th class="l">担当チーム</th><th>月額</th><th class="l" style="text-align:right">継続</th><th class="l">理由</th></tr></thead>
+        <tbody>
+          <tr><td class="l"><span class="badge-st st-renewed">更新</span></td><td class="l">株式会社アルファ</td><td class="l"><span class="team-chip">Aチーム</span></td><td>¥500,000</td><td>7ヶ月目</td><td class="l">継続合意済み</td></tr>
+          <tr><td class="l"><span class="badge-st st-renewed">更新</span></td><td class="l">ベータ商事</td><td class="l"><span class="team-chip">Bチーム</span></td><td>¥420,000</td><td>12ヶ月目</td><td class="l">問題なし</td></tr>
+          <tr><td class="l"><span class="badge-st st-renewed">更新</span></td><td class="l">ゼータフーズ</td><td class="l"><span class="team-chip">Aチーム</span></td><td>¥260,000</td><td>4ヶ月目</td><td class="l">追加施策あり</td></tr>
+        </tbody>
+      </table>
+      <!-- 未確認タブ -->
+      <table class="rtable" id="rt-pending" style="display:none">
+        <thead><tr><th class="l">ステータス</th><th class="l">メディア</th><th class="l">担当チーム</th><th>月額</th><th class="l" style="text-align:right">継続</th><th class="l">理由</th></tr></thead>
+        <tbody>
+          <tr><td class="l"><span class="badge-st st-pending">未確認</span></td><td class="l">カッパ食品</td><td class="l"><span class="team-chip">Bチーム</span></td><td>¥300,000</td><td>5ヶ月目</td><td class="l">—</td></tr>
+          <tr><td class="l"><span class="badge-st st-pending">未確認</span></td><td class="l">ラムダ社</td><td class="l">—</td><td>¥180,000</td><td>?</td><td class="l">—</td></tr>
+        </tbody>
+      </table>
+      <!-- 見込みタブ -->
+      <table class="rtable" id="rt-prospect" style="display:none">
+        <thead><tr><th class="l">ステータス</th><th class="l">メディア</th><th class="l">担当チーム</th><th>月額</th><th class="l" style="text-align:right">継続</th><th class="l">理由</th></tr></thead>
+        <tbody>
+          <tr style="background:#f0f9ff"><td class="l"><span class="badge-st" style="background:#e0f2fe;color:#0369a1">見込み</span></td><td class="l">ミュー広告</td><td class="l"><span class="team-chip">Aチーム</span></td><td>¥220,000</td><td>3ヶ月目</td><td class="l">先方検討中</td></tr>
+        </tbody>
+      </table>
+      <!-- 更新不可タブ -->
+      <table class="rtable" id="rt-skip" style="display:none">
+        <thead><tr><th class="l">ステータス</th><th class="l">メディア</th><th class="l">担当チーム</th><th>月額</th><th class="l" style="text-align:right">継続</th><th class="l">理由</th></tr></thead>
+        <tbody>
+          <tr><td class="l"><span class="badge-st st-skip">更新不可</span></td><td class="l">ニュー商店</td><td class="l"><span class="team-chip">Bチーム</span></td><td>¥150,000</td><td>8ヶ月目</td><td class="l">予算都合で一旦停止</td></tr>
+        </tbody>
+      </table>
+      <!-- 終了予定タブ -->
+      <table class="rtable" id="rt-end" style="display:none">
+        <thead><tr><th class="l">ステータス</th><th class="l">メディア</th><th class="l">担当チーム</th><th>月額</th><th class="l" style="text-align:right">継続</th><th class="l">理由</th></tr></thead>
+        <tbody>
+          <tr><td class="l"><span class="badge-st st-end">終了予定</span></td><td class="l">クサイ企画</td><td class="l">—</td><td>¥120,000</td><td>10ヶ月目</td><td class="l">契約満了</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="demo-note" style="margin-top:14px;">※ 実装時は「メディア別更新情報」ページの表示ロジック（`utils/renewal`／`buildRenewalUnits`）をそのまま読み取り専用で流用します（操作列なし）。</p>
+
   </div>
 
 </div>
 
 <script>
 (function () {
-  var CATS = [['保守管理','#3b82f6'],['公式ライン','#0ea5e9'],['コンサル','#6366f1'],['継続','#10b981'],['単発','#f59e0b']];
+  // ----- 上部タブ -----
+  document.querySelectorAll('.tab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (x) { x.classList.remove('on'); });
+      document.querySelectorAll('.pane').forEach(function (x) { x.classList.remove('on'); });
+      t.classList.add('on');
+      document.getElementById('pane-' + t.dataset.pane).classList.add('on');
+    });
+  });
+  // ----- 更新情報のステータスタブ -----
+  document.querySelectorAll('.rtab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      document.querySelectorAll('.rtab').forEach(function (x) { x.classList.remove('on'); });
+      document.querySelectorAll('.rtable').forEach(function (x) { x.style.display = 'none'; });
+      t.classList.add('on');
+      document.getElementById(t.dataset.rtab).style.display = 'table';
+    });
+  });
+
+  // ----- 今年度の売上推移グラフ -----
+  var CATS = [['保守管理','#3b82f6'],['公式ライン','#0ea5e9'],['コンサル','#6366f1'],['SNS運用','#10b981'],['継続','#84cc16'],['単発','#f59e0b']];
   var MONTHS = ['4','5','6','7','8','9','10','11','12','1','2','3'];
-  // 月ごとの [保守管理, 公式ライン, コンサル, 継続, 単発]（ダミー）。null=未到来
+  // 月ごとの [保守管理, 公式ライン, コンサル, SNS運用, 継続, 単発]（ダミー）。null=未到来
   var data = [
-    [380000,120000,250000,980000,470000],
-    [390000,130000,300000,1020000,610000],
-    [395000,140000,320000,1060000,770000],
+    [380000,120000,250000,780000,160000,560000],
+    [390000,130000,300000,820000,180000,700000],
+    [395000,140000,320000,880000,200000,850000],
     null,null,null,null,null,null,null,null,null
   ];
+  var leg = document.getElementById('chartLegend');
+  CATS.forEach(function (c) {
+    var s = document.createElement('span');
+    s.innerHTML = '<i style="background:' + c[1] + '"></i>' + c[0];
+    leg.appendChild(s);
+  });
   var svg = document.getElementById('yearChart');
   var NS = 'http://www.w3.org/2000/svg';
   var W = 1000, right = 16, left = 56, top = 16, base = 210;
