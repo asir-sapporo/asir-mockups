@@ -319,6 +319,9 @@
 
     <!-- マッピング案 -->
     <h2 class="sec">各列の数字の出どころ（提案 / 要確認）</h2>
+    <div class="ro-note" style="background:#eef2ff;border-color:#c7d2fe;color:#3730a3;margin-bottom:14px;">
+      📌 <b>基本ルール</b>：<b>入金予定に出る金額は、すべてこの売上ページにも出す</b>（除外・取りこぼしなし）。合計は入金予定と一致。各列は「どの列に振り分けるか」だけの違い。 → 二重計上もそのまま（入金予定が足しているものは足す）。
+    </div>
     <div class="map-table">
       <table>
         <thead><tr><th style="width:120px">列</th><th style="width:310px">提案する出どころ</th><th>備考・確認したい点</th></tr></thead>
@@ -326,9 +329,9 @@
           <tr><td class="col-name">保守管理<br /><span class="pill" style="background:#dcfce7;color:#166534">継続</span></td><td>WEB保守の内訳のうち <b>タグ≠LINE</b>（月払い毎月／年払い請求月のみ）</td><td>WEBクライアントの保守料（LINE以外）。</td></tr>
           <tr><td class="col-name">公式ライン<br /><span class="pill" style="background:#dcfce7;color:#166534">継続</span></td><td>WEB保守の内訳のうち <b>タグ＝<span class="pill">LINE</span></b></td><td>公式LINE運用の保守。WEB保守を「LINE / それ以外」で2列に分割。</td></tr>
           <tr><td class="col-name">コンサル<br /><span class="pill" style="background:#fef3c7;color:#b45309">スポット</span></td><td>営業確定案件 タグ＝<span class="pill">コンサル</span></td><td class="risk">※ 継続/スポットどちら扱い？（今はスポット）</td></tr>
-          <tr><td class="col-name">SNS運用<br /><span class="pill" style="background:#dcfce7;color:#166534">継続</span></td><td>メディア月額（realizedMonthlyFee＝継続課金）</td><td class="risk">⚠️ 新設。営業タグ「SNS運用」は二重計上回避で除外（要確認）。</td></tr>
+          <tr><td class="col-name">SNS運用<br /><span class="pill" style="background:#dcfce7;color:#166534">継続</span></td><td>メディア月額（realizedMonthlyFee＝継続課金）＋ 営業タグ <span class="pill">SNS運用</span></td><td>入金予定に出るものは除外しない方針。営業タグ「SNS運用」もこの列に合算。</td></tr>
           <tr><td class="col-name">継続<br /><span class="pill" style="background:#dcfce7;color:#166534">継続</span></td><td>営業確定案件 タグ＝<span class="pill">スポンサー</span>（自社メディア）等の継続分</td><td class="risk">※ SNS運用を別列にしたので、この列は「スポンサー等」になる想定。中身を確認したい。</td></tr>
-          <tr><td class="col-name">単発<br /><span class="pill" style="background:#fef3c7;color:#b45309">スポット</span></td><td>メディア単発 ＋ 営業 タグ＝<span class="pill">LINE</span>(制作費)/<span class="pill">オプション</span> ＋ その他収入（請求書）</td><td class="risk">※ 営業の サイト/DTP/映像制作 も単発でよい？</td></tr>
+          <tr><td class="col-name">単発<br /><span class="pill" style="background:#fef3c7;color:#b45309">スポット</span></td><td>メディア単発 ＋ 営業 タグ＝<span class="pill">LINE</span>(制作費)/<span class="pill">オプション</span>/<span class="pill">サイト</span>/<span class="pill">DTP</span>/<span class="pill">映像制作</span> ＋ その他収入（請求書）＋ <b>どの列にも入らない案件の受け皿</b></td><td>取りこぼし防止。上の列に当てはまらない営業案件はここに入れて合計を入金予定と一致させる。</td></tr>
         </tbody>
       </table>
     </div>
@@ -336,11 +339,10 @@
     <!-- Q&A -->
     <h2 class="sec">確認したいポイント（決まり次第、数字を連携します）</h2>
     <div class="qa">
+      <li style="list-style:none;margin-left:-20px;color:#166534;font-weight:700;">✅ 決定：入金予定に出る金額はすべて売上ページにも出す（除外・取りこぼしなし／合計一致）。営業タグ「SNS運用」も除外せず計上。</li>
       <ol>
-        <li><b>SNS運用 列と 継続 列の切り分け</b>：SNS運用＝メディア月額、継続＝スポンサー等、でOK？（継続列に入れたい中身を教えてください）</li>
-        <li><b>営業タグ「SNS運用」の扱い</b>：メディア月額を正とし二重計上回避で除外でOK？</li>
+        <li><b>SNS運用 列と 継続 列の切り分け</b>：SNS運用＝メディア月額＋営業タグSNS運用、継続＝スポンサー等、でOK？（継続列に入れたい中身を教えてください）</li>
         <li><b>コンサルの位置づけ</b>：継続収入／スポット収入どちらに数える？</li>
-        <li><b>営業の制作系タグ</b>：「サイト」「DTP」「映像制作」も単発に入れてOK？</li>
         <li><b>事業区分KPI</b>：自社/受託/その他の3区分の分け方はこの理解でOK？（自社=スポンサー/オプション、受託=SNS運用/コンサル/メディア単発、その他=WEB保守/制作/請求書）</li>
         <li><b>表示の細部</b>：税抜/税込どちら基準？ ／ 並びは合計が大きい順？ ／ 全列0円の社は隠す？</li>
       </ol>
